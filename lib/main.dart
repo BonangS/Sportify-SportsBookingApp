@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/screens/home_screen.dart';
+import 'package:sport_application/screens/main_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -13,10 +13,20 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
         scaffoldBackgroundColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: IconThemeData(color: Colors.black),
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      home: const HomeScreen(),
+      home: const MainScreen(),
     );
   }
 }
