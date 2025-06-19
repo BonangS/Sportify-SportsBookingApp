@@ -1,12 +1,282 @@
 import 'package:flutter/material.dart';
 import 'package:sport_application/models/venue_model.dart';
 import 'package:sport_application/utils/app_colors.dart';
-import 'package:sport_application/widgets/schedule_grid.dart';
 import 'package:sport_application/screens/payment_detail_screen.dart';
+import 'package:intl/intl.dart';
 
-class DetailScreen extends StatelessWidget {
+class DetailScreen extends StatefulWidget {
   final Venue venue;
   const DetailScreen({super.key, required this.venue});
+
+  @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  DateTime selectedDate = DateTime.now();
+  final List<String> availableTimeSlots = [
+    '08:00',
+    '09:00',
+    '10:00',
+    '11:00',
+    '12:00',
+    '13:00',
+    '14:00',
+    '15:00',
+    '16:00',
+    '17:00',
+    '18:00',
+    '19:00',
+    '20:00',
+  ];
+  List<String> selectedTimeSlots = [];
+
+  int get totalHours => selectedTimeSlots.length;
+  int get totalPrice => totalHours * widget.venue.pricePerHour;
+
+  // Widget untuk memilih tanggal (7 hari ke depan)
+  Widget _buildDatePicker() {
+    final now = DateTime.now();
+    final dates = List.generate(7, (index) => now.add(Duration(days: index)));
+
+    return Container(
+      height: 100,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: dates.length,
+        itemBuilder: (context, index) {
+          final date = dates[index];
+          final isSelected =
+              date.day == selectedDate.day &&
+              date.month == selectedDate.month &&
+              date.year == selectedDate.year;
+
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedDate = date;
+                selectedTimeSlots = []; // Reset ketika tanggal berubah
+              });
+            },
+            child: Container(
+              width: 65,
+              margin: EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.primary : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSelected ? AppColors.primary : Colors.grey.shade300,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    DateFormat('E').format(date),
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    date.day.toString(),
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    DateFormat('MMM').format(date),
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.grey,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Widget untuk memilih slot waktu
+  Widget _buildTimeSlots() {
+    // Currency formatter untuk format harga
+    final currencyFormatter = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 2,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Pilih Jam',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: availableTimeSlots.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 16,
+            childAspectRatio: 2.0,
+          ),
+          itemBuilder: (context, index) {
+            final time = availableTimeSlots[index];
+            final isSelected = selectedTimeSlots.contains(time);
+
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isSelected) {
+                    selectedTimeSlots.remove(time);
+                  } else {
+                    // Pastikan slot yang dipilih berurutan
+                    if (_isConsecutiveSlot(time)) {
+                      selectedTimeSlots.add(time);
+                      selectedTimeSlots.sort(); // Urutkan slot
+                    } else {
+                      // Tampilkan pesan error jika tidak berurutan
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Silakan pilih slot waktu yang berurutan',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.primary : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color:
+                        isSelected ? AppColors.primary : Colors.grey.shade300,
+                    width: 1.5,
+                  ),
+                  boxShadow:
+                      isSelected
+                          ? [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.3),
+                              spreadRadius: 1,
+                              blurRadius: 3,
+                              offset: const Offset(0, 1),
+                            ),
+                          ]
+                          : null,
+                ),
+                child: Center(
+                  child: Text(
+                    time,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: isSelected ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 24),
+
+        // Menampilkan jumlah jam dan total harga
+        if (selectedTimeSlots.isNotEmpty) ...[
+          const Divider(height: 32),
+          Card(
+            elevation: 0,
+            color: Colors.grey.shade50,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: Colors.grey.shade200),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Total Durasi:',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        '$totalHours jam',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Total Harga:',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        currencyFormatter.format(totalPrice),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // Fungsi untuk memastikan slot waktu yang dipilih berurutan
+  bool _isConsecutiveSlot(String timeSlot) {
+    if (selectedTimeSlots.isEmpty) return true;
+
+    // Konversi waktu ke format menit
+    int toMinutes(String time) {
+      final parts = time.split(':');
+      return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+    }
+
+    final minutes = toMinutes(timeSlot);
+
+    // Cek apakah slot baru berdekatan dengan slot yang sudah dipilih
+    for (var existing in selectedTimeSlots) {
+      final existingMinutes = toMinutes(existing);
+
+      // Slot sebelum atau sesudah (interval 60 menit)
+      if ((minutes - existingMinutes).abs() == 60) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,17 +289,23 @@ class DetailScreen extends StatelessWidget {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                venue.name,
+                widget.venue.name,
                 style: const TextStyle(
                   color: Colors.white,
-                  shadows: [Shadow(blurRadius: 10, color: Colors.black)],
+                  fontWeight: FontWeight.bold,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black54,
+                      offset: Offset(0, 2),
+                      blurRadius: 4,
+                    ),
+                  ],
                 ),
               ),
               background: Image.network(
-                venue.imageUrl ?? '',
+                widget.venue.imageUrl ??
+                    'https://via.placeholder.com/800x400?text=No+Image',
                 fit: BoxFit.cover,
-                errorBuilder:
-                    (context, error, stackTrace) => const Icon(Icons.error),
               ),
             ),
           ),
@@ -41,54 +317,77 @@ class DetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Info utama (Nama, Rating, Alamat)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          venue.name,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          const Icon(Icons.star, color: AppColors.accent),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${venue.rating}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
+                  // Alamat & Rating
                   Row(
                     children: [
                       const Icon(
                         Icons.location_on_outlined,
+                        size: 16,
                         color: Colors.grey,
-                        size: 18,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          venue.address,
+                          widget.venue.address,
                           style: const TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.star,
+                              size: 16,
+                              color: Colors.amber,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              widget.venue.rating.toString(),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  const Divider(height: 32),
+
+                  // Harga per jam
+                  const SizedBox(height: 16),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: NumberFormat.currency(
+                            locale: 'id_ID',
+                            symbol: 'Rp ',
+                            decimalDigits: 0,
+                          ).format(widget.venue.pricePerHour),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const TextSpan(
+                          text: ' / jam',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
 
                   // Fasilitas
+                  const SizedBox(height: 24),
                   const Text(
                     'Fasilitas',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -98,44 +397,27 @@ class DetailScreen extends StatelessWidget {
                     spacing: 8.0,
                     runSpacing: 4.0,
                     children:
-                        venue.facilities
+                        widget.venue.facilities
                             .map((facility) => Chip(label: Text(facility)))
                             .toList(),
                   ),
-                  const Divider(height: 32),
-
-                  // Jadwal
+                  const Divider(height: 32), // Jadwal
                   const Text(
                     'Pilih Tanggal & Jadwal',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  // Placeholder untuk kalender
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Selasa, 25 Desember 2023',
-                        ), // Ini bisa diganti dengan date picker
-                        Icon(Icons.calendar_today, color: AppColors.primary),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const ScheduleGrid(),
+                  // Date Picker Horizontal
+                  _buildDatePicker(),
+                  const SizedBox(height: 24),
+                  // Time Slots Grid
+                  _buildTimeSlots(),
                 ],
               ),
             ),
           ),
         ],
-      ),
-      // Tombol Pesan Sekarang yang "sticky" di bawah
+      ), // Tombol Pesan Sekarang yang "sticky" di bawah
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
@@ -155,9 +437,15 @@ class DetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Total Harga', style: TextStyle(color: Colors.grey)),
+                const Text('Total Harga', style: TextStyle(color: Colors.grey)),
                 Text(
-                  'Rp 150.000', // Ini nanti dihitung dinamis
+                  selectedTimeSlots.isEmpty
+                      ? 'Pilih jadwal'
+                      : NumberFormat.currency(
+                        locale: 'id_ID',
+                        symbol: 'Rp ',
+                        decimalDigits: 2,
+                      ).format(totalPrice),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -167,36 +455,35 @@ class DetailScreen extends StatelessWidget {
               ],
             ),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => PaymentDetailScreen(
-                          venue: venue,
-                          selectedDate:
-                              DateTime.now(), // Ganti dengan tanggal yang dipilih user
-                          selectedTimes: [
-                            '08:00',
-                          ], // Ganti dengan jadwal yang dipilih user
-                          totalPrice:
-                              150000, // Ganti dengan harga yang dihitung
-                        ),
-                  ),
-                );
-              },
+              onPressed:
+                  selectedTimeSlots.isEmpty
+                      ? null
+                      : () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => PaymentDetailScreen(
+                                  venue: widget.venue,
+                                  selectedDate: selectedDate,
+                                  selectedTimes: selectedTimeSlots,
+                                  totalPrice: totalPrice,
+                                ),
+                          ),
+                        );
+                      },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 16,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: const Text('Pesan Sekarang'),
+              child: const Text(
+                'Pesan Sekarang',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),

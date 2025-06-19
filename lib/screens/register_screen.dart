@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/screens/main_screen.dart';
 import 'package:sport_application/services/auth_service.dart';
 import 'package:sport_application/utils/app_colors.dart';
 
@@ -43,15 +42,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
 
         if (user != null && mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MainScreen()),
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Pendaftaran berhasil! Silakan login.'),
+              backgroundColor: Colors.green,
+            ),
           );
+
+          Navigator.of(context).pop();
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.toString())),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
         }
       } finally {
         if (mounted) {
@@ -93,9 +97,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daftar'),
-      ),
+      appBar: AppBar(title: const Text('Daftar')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -130,7 +132,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     prefixIcon: Icon(Icons.phone),
                   ),
                   keyboardType: TextInputType.phone,
-                  validator: (value) => _validateNotEmpty(value, 'Nomor telepon'),
+                  validator:
+                      (value) => _validateNotEmpty(value, 'Nomor telepon'),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -149,19 +152,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+                  child:
+                      _isLoading
+                          ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                          : const Text(
+                            'Daftar',
+                            style: TextStyle(fontSize: 16),
                           ),
-                        )
-                      : const Text(
-                          'Daftar',
-                          style: TextStyle(fontSize: 16),
-                        ),
                 ),
               ],
             ),

@@ -32,6 +32,11 @@ class SupabaseService {
     }
   }
 
+  // logout
+  static Future<void> signOut() async {
+    await client.auth.signOut();
+  }
+
   // Auth helpers
   static User? get currentUser => client.auth.currentUser;
   static String? get currentUserId => currentUser?.id;

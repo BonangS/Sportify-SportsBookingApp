@@ -13,7 +13,7 @@ class BookingService {
           .select('*, venues(*)')
           .eq('user_id', user.id)
           .order('booking_date', ascending: false);
-      
+
       return (response as List)
           .map((booking) => BookingModel.fromJson(booking))
           .toList();
@@ -25,11 +25,9 @@ class BookingService {
 
   static Future<BookingModel?> getBookingById(String id) async {
     try {
-      final response = await _bookings
-          .select('*, venues(*)')
-          .eq('id', id)
-          .single();
-      
+      final response =
+          await _bookings.select('*, venues(*)').eq('id', id).single();
+
       return BookingModel.fromJson(response);
     } catch (e) {
       print('Error fetching booking: $e');
@@ -48,33 +46,39 @@ class BookingService {
       final user = SupabaseService.currentUser;
       if (user == null) throw 'User not logged in';
 
+      // Format booking_date as YYYY-MM-DD for the date field
+      final formattedDate =
+          "${bookingDate.year.toString()}-${bookingDate.month.toString().padLeft(2, '0')}-${bookingDate.day.toString().padLeft(2, '0')}";
+
       final booking = {
         'user_id': user.id,
         'venue_id': venueId,
-        'booking_date': bookingDate.toIso8601String(),
+        'booking_date': formattedDate,
         'start_time': startTime,
         'end_time': endTime,
-        'total_price': totalPrice,
+        'total_price':
+            totalPrice.toInt(), // Convert to int as required by schema
         'status': 'pending',
+        'payment_status': 'paid', // Add payment status
       };
 
-      final response = await _bookings
-          .insert(booking)
-          .select('*, venues(*)')
-          .single();
-      
+      final response =
+          await _bookings.insert(booking).select('*, venues(*)').single();
+
       return BookingModel.fromJson(response);
     } catch (e) {
       print('Error creating booking: $e');
-      return null;
+      // Re-throw the error so we can handle it properly in the UI
+      rethrow;
     }
   }
 
-  static Future<bool> updateBookingStatus(String bookingId, String status) async {
+  static Future<bool> updateBookingStatus(
+    String bookingId,
+    String status,
+  ) async {
     try {
-      await _bookings
-          .update({'status': status})
-          .eq('id', bookingId);
+      await _bookings.update({'status': status}).eq('id', bookingId);
       return true;
     } catch (e) {
       print('Error updating booking status: $e');
