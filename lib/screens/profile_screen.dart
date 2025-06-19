@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:sport_application/utils/app_colors.dart';
 import 'package:sport_application/services/auth_service.dart';
 import 'package:sport_application/services/supabase_service.dart';
+import 'package:sport_application/services/booking_service.dart';
 import 'package:sport_application/models/user_model.dart';
 import 'package:sport_application/screens/login_screen.dart';
+import 'package:sport_application/screens/edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,6 +17,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   UserModel? user;
   bool isLoading = true;
+  int activeBookingsCount = 0;
 
   @override
   void initState() {
@@ -26,8 +29,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       setState(() => isLoading = true);
       final userProfile = await AuthService.getCurrentUser();
+      final bookingCount = await BookingService.countActiveBookings();
+
       setState(() {
         user = userProfile;
+        activeBookingsCount = bookingCount;
         isLoading = false;
       });
     } catch (e) {
@@ -95,17 +101,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 32),
-
-                      // Stats Cards
+                      const SizedBox(height: 32), // Stats Cards
                       Row(
                         children: [
                           Expanded(
                             child: _buildStatCard(
                               context: context,
                               icon: Icons.calendar_today,
-                              value: '12',
-                              label: 'Total Booking',
+                              value: activeBookingsCount.toString(),
+                              label: 'Total Booking Aktif',
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -126,8 +130,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         context: context,
                         icon: Icons.edit,
                         label: 'Edit Profil',
-                        onTap: () {
-                          // TODO: Implement edit profile
+                        onTap: () async {
+                          if (user != null) {
+                            // Navigate to Edit Profile screen
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => EditProfileScreen(user: user!),
+                              ),
+                            );
+
+                            // If changes were made, refresh the profile
+                            if (result == true) {
+                              loadUserProfile();
+                            }
+                          }
                         },
                       ),
                       _buildMenuItem(

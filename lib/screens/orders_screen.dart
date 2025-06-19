@@ -91,17 +91,57 @@ class _OrdersScreenState extends State<OrdersScreen>
 
   List<BookingModel> get activeBookings {
     final now = DateTime.now();
+
     return bookings.where((booking) {
-      return booking.status != 'completed' &&
-          booking.bookingDate.isAfter(now.subtract(const Duration(days: 1)));
+      // Check if the booking is in the future or currently happening
+      // Convert booking time to a full DateTime for accurate comparison
+      final bookingDate = booking.bookingDate;
+      final endTimeComponents = booking.endTime.split(':');
+      final endHour = int.parse(endTimeComponents[0]);
+      final endMinute = int.parse(endTimeComponents[1]);
+
+      final bookingEndDateTime = DateTime(
+        bookingDate.year,
+        bookingDate.month,
+        bookingDate.day,
+        endHour,
+        endMinute,
+      );
+
+      // Active bookings:
+      // 1. End time is in the future (including today's bookings)
+      // 2. Status is not completed or cancelled
+      return bookingEndDateTime.isAfter(now) &&
+          booking.status != 'completed' &&
+          booking.status != 'cancelled';
     }).toList();
   }
 
   List<BookingModel> get historyBookings {
     final now = DateTime.now();
+
     return bookings.where((booking) {
-      return booking.status == 'completed' ||
-          booking.bookingDate.isBefore(now.subtract(const Duration(days: 1)));
+      // Check if the booking is in the past
+      // Convert booking time to a full DateTime for accurate comparison
+      final bookingDate = booking.bookingDate;
+      final endTimeComponents = booking.endTime.split(':');
+      final endHour = int.parse(endTimeComponents[0]);
+      final endMinute = int.parse(endTimeComponents[1]);
+
+      final bookingEndDateTime = DateTime(
+        bookingDate.year,
+        bookingDate.month,
+        bookingDate.day,
+        endHour,
+        endMinute,
+      );
+
+      // History bookings:
+      // 1. End time is in the past
+      // 2. OR the booking is completed or cancelled
+      return bookingEndDateTime.isBefore(now) ||
+          booking.status == 'completed' ||
+          booking.status == 'cancelled';
     }).toList();
   }
 

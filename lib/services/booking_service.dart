@@ -133,4 +133,44 @@ class BookingService {
       return [];
     }
   }
+
+  static Future<int> countActiveBookings() async {
+    try {
+      final user = SupabaseService.currentUser;
+      if (user == null) return 0;
+
+      // Get all bookings for the current user
+      final bookings = await getUserBookings();
+      final now = DateTime.now();
+
+      // Filter active bookings - same logic as in orders_screen.dart
+      final activeBookings = bookings.where((booking) {
+        // Convert booking time to a full DateTime for accurate comparison
+        final bookingDate = booking.bookingDate;
+        final endTimeComponents = booking.endTime.split(':');
+        final endHour = int.parse(endTimeComponents[0]);
+        final endMinute = int.parse(endTimeComponents[1]);
+
+        final bookingEndDateTime = DateTime(
+          bookingDate.year,
+          bookingDate.month,
+          bookingDate.day,
+          endHour,
+          endMinute,
+        );
+
+        // Active bookings:
+        // 1. End time is in the future (including today's bookings)
+        // 2. Status is not completed or cancelled
+        return bookingEndDateTime.isAfter(now) &&
+            booking.status != 'completed' &&
+            booking.status != 'cancelled';
+      });
+
+      return activeBookings.length;
+    } catch (e) {
+      print('Error counting active bookings: $e');
+      return 0;
+    }
+  }
 }
