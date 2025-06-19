@@ -1,0 +1,84 @@
+import 'package:sport_application/models/booking_model.dart';
+import 'package:sport_application/services/supabase_service.dart';
+
+class BookingService {
+  static final _bookings = SupabaseService.client.from('bookings');
+
+  static Future<List<BookingModel>> getUserBookings() async {
+    try {
+      final user = SupabaseService.currentUser;
+      if (user == null) return [];
+
+      final response = await _bookings
+          .select('*, venues(*)')
+          .eq('user_id', user.id)
+          .order('booking_date', ascending: false);
+      
+      return (response as List)
+          .map((booking) => BookingModel.fromJson(booking))
+          .toList();
+    } catch (e) {
+      print('Error fetching user bookings: $e');
+      return [];
+    }
+  }
+
+  static Future<BookingModel?> getBookingById(String id) async {
+    try {
+      final response = await _bookings
+          .select('*, venues(*)')
+          .eq('id', id)
+          .single();
+      
+      return BookingModel.fromJson(response);
+    } catch (e) {
+      print('Error fetching booking: $e');
+      return null;
+    }
+  }
+
+  static Future<BookingModel?> createBooking({
+    required String venueId,
+    required DateTime bookingDate,
+    required String startTime,
+    required String endTime,
+    required double totalPrice,
+  }) async {
+    try {
+      final user = SupabaseService.currentUser;
+      if (user == null) throw 'User not logged in';
+
+      final booking = {
+        'user_id': user.id,
+        'venue_id': venueId,
+        'booking_date': bookingDate.toIso8601String(),
+        'start_time': startTime,
+        'end_time': endTime,
+        'total_price': totalPrice,
+        'status': 'pending',
+      };
+
+      final response = await _bookings
+          .insert(booking)
+          .select('*, venues(*)')
+          .single();
+      
+      return BookingModel.fromJson(response);
+    } catch (e) {
+      print('Error creating booking: $e');
+      return null;
+    }
+  }
+
+  static Future<bool> updateBookingStatus(String bookingId, String status) async {
+    try {
+      await _bookings
+          .update({'status': status})
+          .eq('id', bookingId);
+      return true;
+    } catch (e) {
+      print('Error updating booking status: $e');
+      return false;
+    }
+  }
+}

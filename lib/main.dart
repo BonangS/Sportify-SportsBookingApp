@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/screens/main_screen.dart';
-import 'package:intl/date_symbol_data_local.dart'; // Tambahkan ini
-
+import 'package:sport_application/screens/login_screen.dart';
+import 'package:sport_application/services/supabase_service.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('id_ID', null); // Inisialisasi locale Indonesia
+  await initializeDateFormatting('id_ID', null);
+  
+  // Initialize Supabase
+  await SupabaseService.initialize();
+  
   runApp(const MainApp());
 }
 
@@ -30,7 +34,7 @@ class MainApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const MainScreen(),
+      home: const LoginScreen(),
     );
   }
 }

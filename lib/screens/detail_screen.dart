@@ -26,7 +26,7 @@ class DetailScreen extends StatelessWidget {
                 ),
               ),
               background: Image.network(
-                venue.imageUrl,
+                venue.imageUrl ?? '',
                 fit: BoxFit.cover,
                 errorBuilder:
                     (context, error, stackTrace) => const Icon(Icons.error),

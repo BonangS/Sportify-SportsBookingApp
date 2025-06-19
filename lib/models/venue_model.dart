@@ -2,22 +2,55 @@ class Venue {
   final String id;
   final String name;
   final String address;
-  final String imageUrl;
+  final String? imageUrl;
   final double rating;
-  final double distance;
+  final double? distance;
   final int pricePerHour;
   final List<String> facilities;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   Venue({
     required this.id,
     required this.name,
     required this.address,
-    required this.imageUrl,
-    required this.rating,
-    required this.distance,
+    this.imageUrl,
+    this.rating = 0.0,
+    this.distance,
     required this.pricePerHour,
     required this.facilities,
+    this.createdAt,
+    this.updatedAt,
   });
+
+  factory Venue.fromJson(Map<String, dynamic> json) {
+    return Venue(
+      id: json['id'],
+      name: json['name'],
+      address: json['address'],
+      imageUrl: json['image_url'],
+      rating: (json['rating'] ?? 0.0).toDouble(),
+      distance: json['distance']?.toDouble(),
+      pricePerHour: json['price_per_hour'],
+      facilities: List<String>.from(json['facilities'] ?? []),
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'address': address,
+      'image_url': imageUrl,
+      'rating': rating,
+      'distance': distance,
+      'price_per_hour': pricePerHour,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+    };
+  }
 }
 
 // Data Dummy

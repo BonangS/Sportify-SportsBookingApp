@@ -1,121 +1,177 @@
 import 'package:flutter/material.dart';
 import 'package:sport_application/utils/app_colors.dart';
+import 'package:sport_application/services/auth_service.dart';
+import 'package:sport_application/services/supabase_service.dart';
+import 'package:sport_application/models/user_model.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  UserModel? user;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserProfile();
+  }
+
+  Future<void> loadUserProfile() async {
+    try {
+      setState(() => isLoading = true);
+      final userProfile = await AuthService.getCurrentUser();
+      setState(() {
+        user = userProfile;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading profile: $e');
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // Profile Header
-            const Row(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: NetworkImage(
-                    'https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=2080&auto=format&fit=crop',
-                  ),
-                ),
-                SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Budi Santoso',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+        child: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: loadUserProfile,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  // Profile Header
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: user?.profilePictureUrl != null
+                            ? NetworkImage(user!.profilePictureUrl!)
+                            : null,
+                        child: user?.profilePictureUrl == null
+                            ? Text(
+                                user?.fullName?.substring(0, 1).toUpperCase() ?? '?',
+                                style: const TextStyle(fontSize: 24),
+                              )
+                            : null,
                       ),
-                    ),
-                    Text(
-                      '+62 812-3456-7890',
-                      style: TextStyle(
-                        color: Colors.grey,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user?.fullName ?? 'User',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              user?.phoneNumber ?? '',
+                              style: const TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              user?.email ?? '',
+                              style: const TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            // Stats Cards
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    'Total Pesanan',
-                    '12',
-                    Icons.receipt_long,
+                    ],
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard(
-                    'Total Pembayaran',
-                    'Rp 2.4jt',
-                    Icons.payment,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-            // Menu Items
-            _buildMenuItem(
-              'Edit Profile',
-              Icons.person_outline,
-              onTap: () {},
-            ),
-            _buildMenuItem(
-              'Metode Pembayaran',
-              Icons.credit_card,
-              onTap: () {},
-            ),
-            _buildMenuItem(
-              'Pengaturan Notifikasi',
-              Icons.notifications_none,
-              onTap: () {},
-            ),
-            _buildMenuItem(
-              'Pusat Bantuan',
-              Icons.help_outline,
-              onTap: () {},
-            ),
-            _buildMenuItem(
-              'Syarat dan Ketentuan',
-              Icons.description_outlined,
-              onTap: () {},
-            ),
-            _buildMenuItem(
-              'Tentang Aplikasi',
-              Icons.info_outline,
-              onTap: () {},
-            ),
-            const SizedBox(height: 16),
-            
-            // Logout Button
-            OutlinedButton.icon(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                  // Stats Cards
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatCard(
+                          context: context,
+                          icon: Icons.calendar_today,
+                          value: '12',
+                          label: 'Total Booking',
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildStatCard(
+                          context: context,
+                          icon: Icons.star,
+                          value: '4.8',
+                          label: 'Rating',
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Menu Items
+                  const SizedBox(height: 32),
+                  _buildMenuItem(
+                    context: context,
+                    icon: Icons.edit,
+                    label: 'Edit Profil',
+                    onTap: () {
+                      // TODO: Implement edit profile
+                    },
+                  ),
+                  _buildMenuItem(
+                    context: context,
+                    icon: Icons.notifications,
+                    label: 'Notifikasi',
+                    onTap: () {
+                      // TODO: Implement notifications
+                    },
+                  ),
+                  _buildMenuItem(
+                    context: context,
+                    icon: Icons.help,
+                    label: 'Bantuan',
+                    onTap: () {
+                      // TODO: Implement help
+                    },
+                  ),
+                  _buildMenuItem(
+                    context: context,
+                    icon: Icons.logout,
+                    label: 'Keluar',
+                    onTap: () async {
+                      try {
+                        await SupabaseService.client.auth.signOut();
+                        // Navigate to login screen
+                        if (context.mounted) {
+                          Navigator.of(context).pushReplacementNamed('/login');
+                        }
+                      } catch (e) {
+                        print('Error signing out: $e');
+                      }
+                    },
+                  ),
+                ],
               ),
-              icon: const Icon(Icons.logout),
-              label: const Text('Keluar'),
             ),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon) {
+  Widget _buildStatCard({
+    required BuildContext context,
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -137,7 +193,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            title,
+            label,
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 12,
@@ -148,10 +204,15 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(String title, IconData icon, {required VoidCallback onTap}) {
+  Widget _buildMenuItem({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return ListTile(
       leading: Icon(icon, color: AppColors.primary),
-      title: Text(title),
+      title: Text(label),
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
     );
