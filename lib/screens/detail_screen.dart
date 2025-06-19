@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sport_application/models/venue_model.dart';
 import 'package:sport_application/utils/app_colors.dart';
 import 'package:sport_application/screens/payment_detail_screen.dart';
+import 'package:sport_application/services/booking_service.dart';
 import 'package:intl/intl.dart';
 
 class DetailScreen extends StatefulWidget {
@@ -30,9 +31,58 @@ class _DetailScreenState extends State<DetailScreen> {
     '20:00',
   ];
   List<String> selectedTimeSlots = [];
+  List<String> bookedTimeSlots = [];
+  bool isLoading = true;
 
-  int get totalHours => selectedTimeSlots.length;
+  // Calculate correct duration based on the range (not the number of slots)
+  int get totalHours {
+    if (selectedTimeSlots.isEmpty) return 0;
+
+    // Sort slots
+    List<String> sortedSlots = List.from(selectedTimeSlots)..sort();
+
+    // Calculate the range (end hour - start hour)
+    int startHour = int.parse(sortedSlots.first.split(':')[0]);
+    int lastHour = int.parse(sortedSlots.last.split(':')[0]);
+
+    // Calculate the correct duration: (last hour + 1) - start hour
+    // This gives us 2 hours for 8:00-10:00, not 3 hours
+    int endHour = lastHour + 1;
+    return endHour - startHour;
+  }
+
   int get totalPrice => totalHours * widget.venue.pricePerHour;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBookedSlots();
+  }
+
+  // Method to fetch booked slots
+  Future<void> _fetchBookedSlots() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final slots = await BookingService.getBookedTimeSlots(
+        widget.venue.id,
+        selectedDate,
+      );
+
+      setState(() {
+        bookedTimeSlots = slots;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching booked slots: $e');
+      setState(() {
+        bookedTimeSlots = [];
+        isLoading = false;
+      });
+    }
+  }
 
   // Widget untuk memilih tanggal (7 hari ke depan)
   Widget _buildDatePicker() {
@@ -57,6 +107,8 @@ class _DetailScreenState extends State<DetailScreen> {
                 selectedDate = date;
                 selectedTimeSlots = []; // Reset ketika tanggal berubah
               });
+              // Fetch new booked slots for the selected date
+              _fetchBookedSlots();
             },
             child: Container(
               width: 65,
@@ -116,9 +168,20 @@ class _DetailScreenState extends State<DetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Pilih Jam',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Pilih Jam',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            if (isLoading)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+          ],
         ),
         const SizedBox(height: 16),
         GridView.builder(
@@ -134,60 +197,88 @@ class _DetailScreenState extends State<DetailScreen> {
           itemBuilder: (context, index) {
             final time = availableTimeSlots[index];
             final isSelected = selectedTimeSlots.contains(time);
+            final isBooked = bookedTimeSlots.contains(time);
 
             return GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (isSelected) {
-                    selectedTimeSlots.remove(time);
-                  } else {
-                    // Pastikan slot yang dipilih berurutan
-                    if (_isConsecutiveSlot(time)) {
-                      selectedTimeSlots.add(time);
-                      selectedTimeSlots.sort(); // Urutkan slot
-                    } else {
-                      // Tampilkan pesan error jika tidak berurutan
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Silakan pilih slot waktu yang berurutan',
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  }
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
+              onTap:
+                  isBooked
+                      ? null
+                      : () {
+                        setState(() {
+                          if (isSelected) {
+                            // Remove the time slot and any disconnected slots
+                            selectedTimeSlots.remove(time);
+                            _cleanupDisconnectedSlots();
+                          } else {
+                            // Pastikan slot yang dipilih berurutan
+                            if (_isConsecutiveSlot(time)) {
+                              selectedTimeSlots.add(time);
+                              selectedTimeSlots.sort(); // Urutkan slot
+                            } else {
+                              // Tampilkan pesan error jika tidak berurutan
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Silakan pilih slot waktu yang berurutan',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        });
+                      },
+              child: Opacity(
+                opacity: isBooked ? 0.5 : 1.0,
+                child: Container(
+                  decoration: BoxDecoration(
                     color:
-                        isSelected ? AppColors.primary : Colors.grey.shade300,
-                    width: 1.5,
-                  ),
-                  boxShadow:
-                      isSelected
-                          ? [
-                            BoxShadow(
-                              color: AppColors.primary.withOpacity(0.3),
-                              spreadRadius: 1,
-                              blurRadius: 3,
-                              offset: const Offset(0, 1),
-                            ),
-                          ]
-                          : null,
-                ),
-                child: Center(
-                  child: Text(
-                    time,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: isSelected ? Colors.white : Colors.black87,
+                        isSelected
+                            ? AppColors.primary
+                            : isBooked
+                            ? Colors.grey.shade200
+                            : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color:
+                          isSelected
+                              ? AppColors.primary
+                              : isBooked
+                              ? Colors.grey.shade400
+                              : Colors.grey.shade300,
+                      width: 1.5,
                     ),
+                    boxShadow:
+                        isSelected && !isBooked
+                            ? [
+                              BoxShadow(
+                                color: AppColors.primary.withOpacity(0.3),
+                                spreadRadius: 1,
+                                blurRadius: 3,
+                                offset: const Offset(0, 1),
+                              ),
+                            ]
+                            : null,
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Text(
+                        time,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color:
+                              isSelected
+                                  ? Colors.white
+                                  : isBooked
+                                  ? Colors.grey
+                                  : Colors.black87,
+                        ),
+                      ),
+                      if (isBooked)
+                        const Icon(Icons.block, color: Colors.red, size: 16),
+                    ],
                   ),
                 ),
               ),
@@ -253,29 +344,44 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  // Fungsi untuk memastikan slot waktu yang dipilih berurutan
+  // Fungsi untuk memastikan slot waktu yang dipilih membentuk rentang yang valid
   bool _isConsecutiveSlot(String timeSlot) {
     if (selectedTimeSlots.isEmpty) return true;
 
-    // Konversi waktu ke format menit
-    int toMinutes(String time) {
-      final parts = time.split(':');
-      return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+    // Get the hour as integer
+    int getHour(String time) {
+      return int.parse(time.split(':')[0]);
     }
 
-    final minutes = toMinutes(timeSlot);
+    final newHour = getHour(timeSlot);
 
-    // Cek apakah slot baru berdekatan dengan slot yang sudah dipilih
-    for (var existing in selectedTimeSlots) {
-      final existingMinutes = toMinutes(existing);
+    // Sort current slots to find min and max hours
+    if (selectedTimeSlots.isNotEmpty) {
+      List<String> sortedSlots = List.from(selectedTimeSlots)..sort();
+      int minHour = getHour(sortedSlots.first);
+      int maxHour = getHour(sortedSlots.last);
 
-      // Slot sebelum atau sesudah (interval 60 menit)
-      if ((minutes - existingMinutes).abs() == 60) {
+      // Allow if the new slot is before the minimum or after the maximum
+      if (newHour < minHour || newHour > maxHour) {
+        return true;
+      }
+
+      // Allow if the slot is within the current range (even if not consecutive)
+      if (newHour > minHour && newHour < maxHour) {
         return true;
       }
     }
 
     return false;
+  }
+
+  // Method to clean up time slots when one is removed to maintain valid ranges
+  void _cleanupDisconnectedSlots() {
+    if (selectedTimeSlots.isEmpty) return;
+
+    // We don't need to enforce consecutive slots anymore
+    // Instead, we'll just keep all selected slots
+    // The price calculation will be based on the range
   }
 
   @override

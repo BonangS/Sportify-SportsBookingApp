@@ -85,4 +85,47 @@ class BookingService {
       return false;
     }
   }
+
+  static Future<List<String>> getBookedTimeSlots(
+    String venueId,
+    DateTime date,
+  ) async {
+    try {
+      // Format date to YYYY-MM-DD to match Supabase date format
+      final formattedDate =
+          "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+
+      // Query bookings for the specified venue and date
+      final response = await _bookings
+          .select('start_time, end_time')
+          .eq('venue_id', venueId)
+          .eq('booking_date', formattedDate)
+          .eq('status', 'confirmed')
+          .or('status.eq.pending');
+      if ((response as List).isEmpty) {
+        return [];
+      }
+
+      // Extract all booked hours from the time ranges
+      final List<String> bookedSlots = [];
+      for (final booking in response) {
+        final startTime = booking['start_time'] as String;
+        final endTime = booking['end_time'] as String;
+
+        final startHour = int.parse(startTime.split(':')[0]);
+        final endHour = int.parse(endTime.split(':')[0]);
+
+        // Add all hours between start and end (inclusive of start, exclusive of end)
+        for (int hour = startHour; hour < endHour; hour++) {
+          bookedSlots.add('${hour.toString().padLeft(2, '0')}:00');
+        }
+      }
+
+      print('Booked slots for $formattedDate: $bookedSlots');
+      return bookedSlots;
+    } catch (e) {
+      print('Error fetching booked time slots: $e');
+      return [];
+    }
+  }
 }

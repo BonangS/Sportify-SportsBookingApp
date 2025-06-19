@@ -88,8 +88,9 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
     final endTimeHour = lastTimeHour + 1;
     final endTime = '${endTimeHour.toString().padLeft(2, '0')}:00';
 
-    // Hitung durasi yang benar (jam akhir - jam awal)
+    // Hitung durasi yang benar berdasarkan selisih jam akhir dengan jam awal
     final startHour = int.parse(firstTime.split(':')[0]);
+    // Durasi adalah selisih jam terakhir + 1 dengan jam awal
     final durationHours = endTimeHour - startHour;
 
     // Format "08:00 - 10:00 (2 jam)"
@@ -605,7 +606,7 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.payments_outlined, size: 26),
-                SizedBox(width: 14),
+                SizedBox(width: 12),
                 Text(
                   'Pay',
                   style: TextStyle(
