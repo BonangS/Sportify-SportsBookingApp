@@ -14,41 +14,31 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  DateTime selectedDate = DateTime.now();
-  final List<String> availableTimeSlots = [
-    '08:00',
-    '09:00',
-    '10:00',
-    '11:00',
-    '12:00',
-    '13:00',
-    '14:00',
-    '15:00',
-    '16:00',
-    '17:00',
-    '18:00',
-    '19:00',
-    '20:00',
+  DateTime selectedDate = DateTime.now(); // Define time slots as ranges
+  final List<Map<String, String>> timeSlotRanges = [
+    {'start': '08:00', 'end': '09:00'},
+    {'start': '09:00', 'end': '10:00'},
+    {'start': '10:00', 'end': '11:00'},
+    {'start': '11:00', 'end': '12:00'},
+    {'start': '12:00', 'end': '13:00'},
+    {'start': '13:00', 'end': '14:00'},
+    {'start': '14:00', 'end': '15:00'},
+    {'start': '15:00', 'end': '16:00'},
+    {'start': '16:00', 'end': '17:00'},
+    {'start': '17:00', 'end': '18:00'},
+    {'start': '18:00', 'end': '19:00'},
+    {'start': '19:00', 'end': '20:00'},
+    {'start': '20:00', 'end': '21:00'},
   ];
-  List<String> selectedTimeSlots = [];
+  List<Map<String, String>> selectedTimeSlots = [];
   List<String> bookedTimeSlots = [];
   bool isLoading = true;
 
-  // Calculate correct duration based on the range (not the number of slots)
+  // Calculate correct duration based on the number of selected slots
   int get totalHours {
     if (selectedTimeSlots.isEmpty) return 0;
-
-    // Sort slots
-    List<String> sortedSlots = List.from(selectedTimeSlots)..sort();
-
-    // Calculate the range (end hour - start hour)
-    int startHour = int.parse(sortedSlots.first.split(':')[0]);
-    int lastHour = int.parse(sortedSlots.last.split(':')[0]);
-
-    // Calculate the correct duration: (last hour + 1) - start hour
-    // This gives us 2 hours for 8:00-10:00, not 3 hours
-    int endHour = lastHour + 1;
-    return endHour - startHour;
+    // Simply return the number of selected slots
+    return selectedTimeSlots.length;
   }
 
   int get totalPrice => totalHours * widget.venue.pricePerHour;
@@ -82,6 +72,11 @@ class _DetailScreenState extends State<DetailScreen> {
         isLoading = false;
       });
     }
+  }
+
+  // Sort time slots by start time
+  void _sortTimeSlots() {
+    selectedTimeSlots.sort((a, b) => a['start']!.compareTo(b['start']!));
   }
 
   // Widget untuk memilih tanggal (7 hari ke depan)
@@ -187,40 +182,77 @@ class _DetailScreenState extends State<DetailScreen> {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: availableTimeSlots.length,
+          itemCount: timeSlotRanges.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            crossAxisSpacing: 12,
+            crossAxisCount: 3, // Reduced to 3 for better fit of time ranges
+            crossAxisSpacing: 10,
             mainAxisSpacing: 16,
-            childAspectRatio: 2.0,
+            childAspectRatio:
+                1.6, // Adjusted for better appearance with time ranges
           ),
           itemBuilder: (context, index) {
-            final time = availableTimeSlots[index];
-            final isSelected = selectedTimeSlots.contains(time);
-            final isBooked = bookedTimeSlots.contains(time);
+            final timeSlot = timeSlotRanges[index];
+            final startTime = timeSlot['start']!;
+            final endTime = timeSlot['end']!;
+            final displayText =
+                '${startTime.substring(0, 5)}-${endTime.substring(0, 5)}';
+
+            // Check if this slot is already selected
+            final isSelected = selectedTimeSlots.contains(timeSlot);
+
+            // Check if the start time of this slot is in the booked list
+            final isBooked = bookedTimeSlots.contains(startTime);
+
+            // Visual state of the tile
+            Color bgColor = Colors.white;
+            Color borderColor = Colors.grey.shade300;
+            Color textColor = Colors.black87;
+            List<BoxShadow>? boxShadow;
+            double opacity = 1.0;
+
+            // Determine visual state based on selection and booking status
+            if (isBooked) {
+              bgColor = Colors.grey.shade200;
+              borderColor = Colors.grey.shade400;
+              textColor = Colors.grey;
+              opacity = 0.5;
+            } else if (isSelected) {
+              bgColor = AppColors.primary;
+              borderColor = AppColors.primary;
+              textColor = Colors.white;
+              boxShadow = [
+                BoxShadow(
+                  color: AppColors.primary.withOpacity(0.3),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: const Offset(0, 1),
+                ),
+              ];
+            }
 
             return GestureDetector(
               onTap:
                   isBooked
-                      ? null
+                      ? null // Disable tap for booked slots
                       : () {
                         setState(() {
                           if (isSelected) {
-                            // Remove the time slot and any disconnected slots
-                            selectedTimeSlots.remove(time);
+                            // Remove the time slot and cleanup any disconnected slots
+                            selectedTimeSlots.remove(timeSlot);
                             _cleanupDisconnectedSlots();
                           } else {
-                            // Pastikan slot yang dipilih berurutan
-                            if (_isConsecutiveSlot(time)) {
-                              selectedTimeSlots.add(time);
-                              selectedTimeSlots.sort(); // Urutkan slot
+                            // Check if the slot creates a consecutive sequence
+                            if (_isConsecutiveTimeRange(timeSlot)) {
+                              selectedTimeSlots.add(timeSlot);
+                              _sortTimeSlots(); // Keep slots sorted
                             } else {
-                              // Tampilkan pesan error jika tidak berurutan
+                              // Show error message for non-consecutive selection
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
                                     'Silakan pilih slot waktu yang berurutan',
                                   ),
+                                  behavior: SnackBarBehavior.floating,
                                   backgroundColor: Colors.red,
                                 ),
                               );
@@ -229,55 +261,44 @@ class _DetailScreenState extends State<DetailScreen> {
                         });
                       },
               child: Opacity(
-                opacity: isBooked ? 0.5 : 1.0,
+                opacity: opacity,
                 child: Container(
                   decoration: BoxDecoration(
-                    color:
-                        isSelected
-                            ? AppColors.primary
-                            : isBooked
-                            ? Colors.grey.shade200
-                            : Colors.white,
+                    color: bgColor,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color:
-                          isSelected
-                              ? AppColors.primary
-                              : isBooked
-                              ? Colors.grey.shade400
-                              : Colors.grey.shade300,
-                      width: 1.5,
-                    ),
-                    boxShadow:
-                        isSelected && !isBooked
-                            ? [
-                              BoxShadow(
-                                color: AppColors.primary.withOpacity(0.3),
-                                spreadRadius: 1,
-                                blurRadius: 3,
-                                offset: const Offset(0, 1),
-                              ),
-                            ]
-                            : null,
+                    border: Border.all(color: borderColor, width: 1.5),
+                    boxShadow: boxShadow,
                   ),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      Text(
-                        time,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                          color:
-                              isSelected
-                                  ? Colors.white
-                                  : isBooked
-                                  ? Colors.grey
-                                  : Colors.black87,
-                        ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            displayText,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: textColor,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            "1 jam",
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: textColor.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
                       ),
                       if (isBooked)
-                        const Icon(Icons.block, color: Colors.red, size: 16),
+                        Positioned(
+                          top: 5,
+                          right: 5,
+                          child: Icon(Icons.block, color: Colors.red, size: 14),
+                        ),
                     ],
                   ),
                 ),
@@ -344,44 +365,64 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  // Fungsi untuk memastikan slot waktu yang dipilih membentuk rentang yang valid
-  bool _isConsecutiveSlot(String timeSlot) {
+  // Function to check if a time slot is consecutive to the existing selection
+  bool _isConsecutiveTimeRange(Map<String, String> timeSlot) {
     if (selectedTimeSlots.isEmpty) return true;
 
-    // Get the hour as integer
+    // Helper function to extract hour from time string
     int getHour(String time) {
       return int.parse(time.split(':')[0]);
     }
 
-    final newHour = getHour(timeSlot);
+    // Get the new slot's hour
+    int newStartHour = getHour(timeSlot['start']!);
 
-    // Sort current slots to find min and max hours
-    if (selectedTimeSlots.isNotEmpty) {
-      List<String> sortedSlots = List.from(selectedTimeSlots)..sort();
-      int minHour = getHour(sortedSlots.first);
-      int maxHour = getHour(sortedSlots.last);
+    // Sort current slots
+    List<Map<String, String>> sortedSlots = List.from(selectedTimeSlots);
+    sortedSlots.sort(
+      (a, b) => getHour(a['start']!).compareTo(getHour(b['start']!)),
+    );
 
-      // Allow if the new slot is before the minimum or after the maximum
-      if (newHour < minHour || newHour > maxHour) {
-        return true;
-      }
+    // Get min and max hours from current selection
+    int minHour = getHour(sortedSlots.first['start']!);
+    int maxHour = getHour(sortedSlots.last['end']!) - 1;
 
-      // Allow if the slot is within the current range (even if not consecutive)
-      if (newHour > minHour && newHour < maxHour) {
-        return true;
-      }
-    }
-
-    return false;
+    // New slot should connect to either start or end of the current range
+    return newStartHour == minHour - 1 || newStartHour == maxHour + 1;
   }
 
-  // Method to clean up time slots when one is removed to maintain valid ranges
+  // Method to clean up time slots when one is removed to maintain a valid continuous range
   void _cleanupDisconnectedSlots() {
     if (selectedTimeSlots.isEmpty) return;
 
-    // We don't need to enforce consecutive slots anymore
-    // Instead, we'll just keep all selected slots
-    // The price calculation will be based on the range
+    // Helper function to extract hour from time string
+    int getHour(String time) {
+      return int.parse(time.split(':')[0]);
+    }
+
+    // Sort by start time
+    _sortTimeSlots();
+
+    // Find connected time slots
+    List<Map<String, String>> connectedSlots = [];
+    Map<String, String> firstSlot = selectedTimeSlots.first;
+    connectedSlots.add(firstSlot);
+
+    int lastEndHour = getHour(firstSlot['end']!);
+
+    for (int i = 1; i < selectedTimeSlots.length; i++) {
+      int currentStartHour = getHour(selectedTimeSlots[i]['start']!);
+      if (currentStartHour == lastEndHour) {
+        connectedSlots.add(selectedTimeSlots[i]);
+        lastEndHour = getHour(selectedTimeSlots[i]['end']!);
+      } else {
+        // Found a gap, stop adding
+        break;
+      }
+    }
+
+    // Update selected slots to just include the connected ones
+    selectedTimeSlots = connectedSlots;
   }
 
   @override
@@ -565,6 +606,12 @@ class _DetailScreenState extends State<DetailScreen> {
                   selectedTimeSlots.isEmpty
                       ? null
                       : () {
+                        // Convert the selected time slots to the format expected by the payment screen
+                        List<String> selectedStartTimes =
+                            selectedTimeSlots
+                                .map((slot) => slot['start']!)
+                                .toList();
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -572,7 +619,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                 (context) => PaymentDetailScreen(
                                   venue: widget.venue,
                                   selectedDate: selectedDate,
-                                  selectedTimes: selectedTimeSlots,
+                                  selectedTimes: selectedStartTimes,
                                   totalPrice: totalPrice,
                                 ),
                           ),

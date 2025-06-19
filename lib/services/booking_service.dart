@@ -96,12 +96,13 @@ class BookingService {
           "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
 
       // Query bookings for the specified venue and date
+      // Using .or to get both 'confirmed' and 'pending' status bookings
       final response = await _bookings
           .select('start_time, end_time')
           .eq('venue_id', venueId)
           .eq('booking_date', formattedDate)
-          .eq('status', 'confirmed')
-          .or('status.eq.pending');
+          .or('status.eq.confirmed,status.eq.pending');
+
       if ((response as List).isEmpty) {
         return [];
       }
@@ -116,8 +117,12 @@ class BookingService {
         final endHour = int.parse(endTime.split(':')[0]);
 
         // Add all hours between start and end (inclusive of start, exclusive of end)
+        // This correctly marks each hour slot as booked
         for (int hour = startHour; hour < endHour; hour++) {
-          bookedSlots.add('${hour.toString().padLeft(2, '0')}:00');
+          final timeSlot = '${hour.toString().padLeft(2, '0')}:00';
+          if (!bookedSlots.contains(timeSlot)) {
+            bookedSlots.add(timeSlot);
+          }
         }
       }
 

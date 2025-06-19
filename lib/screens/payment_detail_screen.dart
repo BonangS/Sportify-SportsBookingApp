@@ -34,11 +34,15 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
       // Periksa user login
       if (SupabaseService.currentUser == null) {
         throw Exception('User not logged in');
-      }
+      } // Konversi jam mulai dan jam selesai
+      // Sort times to ensure they are in order
+      List<String> sortedTimes = List.from(widget.selectedTimes)..sort();
+      String startTime = sortedTimes.first;
 
-      // Konversi jam mulai dan jam selesai
-      String startTime = widget.selectedTimes.first;
-      String endTime = _calculateEndTime(widget.selectedTimes.last);
+      // Calculate the end time based on the last selected time slot
+      int lastSlotIndex = sortedTimes.length - 1;
+      String lastSlotStart = sortedTimes[lastSlotIndex];
+      String endTime = _calculateEndTime(lastSlotStart);
 
       print("Creating booking with venueId: ${widget.venue.id}");
       print("Booking date: ${widget.selectedDate}");
@@ -67,14 +71,12 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
     }
   }
 
-  // Fungsi untuk menghitung jam selesai (jam terakhir + 1 jam)
-  String _calculateEndTime(String lastTime) {
-    final parts = lastTime.split(':');
-    int hour = int.parse(parts[0]);
-    int nextHour = hour + 1;
-    // Make sure we handle midnight wrapping correctly (unlikely for a sports venue, but just in case)
-    if (nextHour >= 24) nextHour = 0;
-    return nextHour.toString().padLeft(2, '0') + ':00';
+  // Fungsi untuk menghitung jam selesai
+  String _calculateEndTime(String startTime) {
+    // Parse the hour and add 1 to get the end time
+    int hour = int.parse(startTime.split(':')[0]);
+    int endHour = hour + 1;
+    return '${endHour.toString().padLeft(2, '0')}:00';
   }
 
   // Format jadwal menjadi range jam
@@ -84,16 +86,15 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
     // Urutkan waktu
     final sortedTimes = List<String>.from(times)..sort();
 
-    // Ambil jam awal dan akhir
+    // Ambil jam awal
     final firstTime = sortedTimes.first;
-    final lastTimeHour = int.parse(sortedTimes.last.split(':')[0]);
-    final endTimeHour = lastTimeHour + 1;
-    final endTime = '${endTimeHour.toString().padLeft(2, '0')}:00';
 
-    // Hitung durasi yang benar berdasarkan selisih jam akhir dengan jam awal
-    final startHour = int.parse(firstTime.split(':')[0]);
-    // Durasi adalah selisih jam terakhir + 1 dengan jam awal
-    final durationHours = endTimeHour - startHour;
+    // Get the last time and calculate the end time
+    final lastTime = sortedTimes.last;
+    final endTime = _calculateEndTime(lastTime);
+
+    // Hitung durasi berdasarkan jumlah slot yang dipilih
+    final durationHours = sortedTimes.length;
 
     // Format "08:00 - 10:00 (2 jam)"
     return '$firstTime - $endTime ($durationHours jam)';
