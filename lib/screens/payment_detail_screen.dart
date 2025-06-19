@@ -5,6 +5,7 @@ import 'package:sport_application/models/booking_model.dart';
 import 'package:sport_application/utils/app_colors.dart';
 import 'package:sport_application/services/booking_service.dart';
 import 'package:sport_application/services/supabase_service.dart';
+import 'package:sport_application/services/booking_update_service.dart';
 
 class PaymentDetailScreen extends StatefulWidget {
   final Venue venue;
@@ -489,6 +490,9 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                     'confirmed',
                   );
 
+                  // Notify subscribers that a booking has been updated
+                  BookingUpdateService().notifyBookingUpdate();
+
                   // Format tanggal untuk tampilan
                   final dateFormatter = DateFormat(
                     'EEEE, d MMMM yyyy',
@@ -531,14 +535,31 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                             ],
                           ),
                           actions: [
-                            TextButton(
+                            ElevatedButton(
                               onPressed: () {
-                                Navigator.of(ctx).pop(); // Tutup dialog
-                                Navigator.of(context).popUntil(
-                                  (route) => route.isFirst,
-                                ); // Kembali ke root
+                                Navigator.of(ctx).pop(); // Close the dialog
+
+                                // Navigate to Main screen with Orders tab (index 1)
+                                Navigator.of(
+                                  context,
+                                ).popUntil((route) => route.isFirst);
+
+                                // Set the bottom nav to Orders tab (index 1)
+                                // Also pass the booking ID to potentially highlight it
+                                Navigator.of(context).pushReplacementNamed(
+                                  '/main',
+                                  arguments: {
+                                    'initialTab': 1,
+                                    'bookingId': booking.id,
+                                  },
+                                );
                               },
-                              child: const Text('OK'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                              ),
+                              child: const Text('Lihat Pesanan Saya'),
                             ),
                           ],
                         ),

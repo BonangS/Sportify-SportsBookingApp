@@ -5,23 +5,31 @@ import 'package:sport_application/screens/profile_screen.dart';
 import 'package:sport_application/utils/app_colors.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final int initialTab;
+  final String? highlightBookingId;
+
+  const MainScreen({super.key, this.initialTab = 0, this.highlightBookingId});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
   // List of all screens
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    OrdersScreen(),
-    ProfileScreen(),
+  late final List<Widget> _screens = [
+    const HomeScreen(),
+    const OrdersScreen(),
+    const ProfileScreen(),
   ];
 
-  // Function to handle tab changes
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialTab;
+  } // Function to handle tab changes
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -31,10 +39,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: _screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [

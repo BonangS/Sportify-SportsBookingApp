@@ -36,17 +36,14 @@ class _LoginScreenState extends State<LoginScreen> {
           email: _emailController.text,
           password: _passwordController.text,
         );
-
         if (user != null && mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MainScreen()),
-          );
+          Navigator.of(context).pushReplacementNamed('/main');
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.toString())),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
         }
       } finally {
         if (mounted) {
@@ -72,19 +69,13 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const Text(
                   'Selamat Datang',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 const Text(
                   'Silakan masuk untuk melanjutkan',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: Colors.grey, fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
@@ -140,16 +131,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text('Masuk'),
+                  child:
+                      _isLoading
+                          ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                          : const Text('Masuk'),
                 ),
                 const SizedBox(height: 16),
                 Row(
