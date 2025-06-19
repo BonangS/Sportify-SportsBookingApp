@@ -6,6 +6,7 @@ import 'package:sport_application/utils/app_colors.dart';
 import 'package:sport_application/services/booking_service.dart';
 import 'package:sport_application/services/supabase_service.dart';
 import 'package:sport_application/services/booking_update_service.dart';
+import 'package:sport_application/services/notification_service.dart';
 
 class PaymentDetailScreen extends StatefulWidget {
   final Venue venue;
@@ -493,13 +494,21 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                   // Notify subscribers that a booking has been updated
                   BookingUpdateService().notifyBookingUpdate();
 
-                  // Format tanggal untuk tampilan
+                  // Format tanggal untuk tampilan dan notifikasi
                   final dateFormatter = DateFormat(
                     'EEEE, d MMMM yyyy',
                     'id_ID',
                   );
                   final formattedDate = dateFormatter.format(
                     booking.bookingDate,
+                  );
+
+                  // Create success notification
+                  await NotificationService.addPaymentSuccessNotification(
+                    widget.venue.name,
+                    formattedDate,
+                    '${booking.startTime} - ${booking.endTime}',
+                    booking.id,
                   );
 
                   // Tampilkan dialog sukses dengan detail booking

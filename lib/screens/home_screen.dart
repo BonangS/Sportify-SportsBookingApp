@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_carousel_slider/carousel_slider.dart';
 import 'package:sport_application/models/venue_model.dart';
@@ -5,6 +6,8 @@ import 'package:sport_application/utils/app_colors.dart';
 import 'package:sport_application/widgets/venue_card.dart';
 import 'package:sport_application/services/venue_service.dart';
 import 'package:sport_application/services/auth_service.dart';
+import 'package:sport_application/services/notification_service.dart';
+import 'package:sport_application/models/notification_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,11 +21,28 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Venue> venues = [];
   bool isLoading = true;
   String? userName;
+  int unreadNotificationsCount = 0;
+  List<NotificationModel> notifications = [];
+  StreamSubscription? _notificationSubscription;
 
   @override
   void initState() {
     super.initState();
     loadData();
+    loadNotifications();
+
+    // Listen for new notifications
+    _notificationSubscription = NotificationService.notificationStream.listen((
+      _,
+    ) {
+      loadNotifications();
+    });
+  }
+
+  @override
+  void dispose() {
+    _notificationSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> loadData() async {
@@ -44,6 +64,26 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> loadNotifications() async {
+    try {
+      // Get user notifications
+      final notificationsList =
+          await NotificationService.getUserNotifications();
+
+      // Get unread count
+      final unreadCount = await NotificationService.getUnreadCount();
+
+      if (mounted) {
+        setState(() {
+          notifications = notificationsList;
+          unreadNotificationsCount = unreadCount;
+        });
+      }
+    } catch (e) {
+      print('Error loading notifications: $e');
+    }
+  }
+
   void filterByCategory(String category) {
     setState(() {
       // Toggle category filter (pilih atau hapus pilihan)
@@ -51,6 +91,196 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     // Load data dengan category yang sudah diupdate
     loadData();
+  }
+
+  // Show notifications dialog
+  void _showNotificationsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Notifikasi',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (notifications.isNotEmpty)
+                        TextButton(
+                          onPressed: () async {
+                            await NotificationService.markAllAsRead();
+                            Navigator.pop(context);
+                            loadNotifications();
+                          },
+                          child: const Text('Tandai Semua Dibaca'),
+                        ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 0),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  ),
+                  child:
+                      notifications.isEmpty
+                          ? const Padding(
+                            padding: EdgeInsets.all(24.0),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.notifications_off,
+                                  size: 48,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Tidak ada notifikasi',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          )
+                          : ListView.separated(
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            itemCount: notifications.length,
+                            separatorBuilder:
+                                (context, index) => const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final notification = notifications[index];
+
+                              // Choose icon based on notification type
+                              IconData icon;
+                              Color iconColor;
+
+                              switch (notification.type) {
+                                case 'payment':
+                                  icon = Icons.payment;
+                                  iconColor = Colors.green;
+                                  break;
+                                case 'cancellation':
+                                  icon = Icons.cancel;
+                                  iconColor = Colors.red;
+                                  break;
+                                default:
+                                  icon = Icons.notifications;
+                                  iconColor = AppColors.primary;
+                              }
+
+                              return InkWell(
+                                onTap: () async {
+                                  // Mark as read when tapped
+                                  if (!notification.isRead) {
+                                    await NotificationService.markAsRead(
+                                      notification.id,
+                                    );
+                                    loadNotifications();
+                                  }
+
+                                  // Navigate to relevant screen based on notification type
+                                  if (notification.bookingId != null) {
+                                    Navigator.of(context).pop(); // Close dialog
+                                    // Navigate to Orders tab with the booking ID
+                                    Navigator.of(
+                                      context,
+                                    ).pushNamedAndRemoveUntil(
+                                      '/main',
+                                      (route) => false,
+                                      arguments: {
+                                        'initialTab': 1,
+                                        'bookingId': notification.bookingId,
+                                      },
+                                    );
+                                  }
+                                },
+                                child: Container(
+                                  color:
+                                      notification.isRead
+                                          ? null
+                                          : AppColors.primary.withOpacity(0.05),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 16,
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: iconColor.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          icon,
+                                          color: iconColor,
+                                          size: 24,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              notification.title,
+                                              style: TextStyle(
+                                                fontWeight:
+                                                    notification.isRead
+                                                        ? FontWeight.normal
+                                                        : FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              notification.message,
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              notification.getRelativeTime(),
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                ),
+                const Divider(height: 0),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Tutup'),
+                ),
+              ],
+            ),
+          ),
+    );
   }
 
   @override
@@ -106,24 +336,47 @@ class _HomeScreenState extends State<HomeScreen> {
                             Stack(
                               children: [
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    _showNotificationsDialog(context);
+                                  },
                                   icon: const Icon(
                                     Icons.notifications_none,
                                     size: 28,
                                   ),
                                 ),
-                                Positioned(
-                                  right: 12,
-                                  top: 12,
-                                  child: Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.accent,
-                                      shape: BoxShape.circle,
+                                if (unreadNotificationsCount > 0)
+                                  Positioned(
+                                    right: 8,
+                                    top: 8,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(2),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.accent,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 16,
+                                        minHeight: 16,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          unreadNotificationsCount > 9
+                                              ? '9+'
+                                              : unreadNotificationsCount
+                                                  .toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
                               ],
                             ),
                           ],

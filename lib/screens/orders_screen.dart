@@ -4,6 +4,7 @@ import 'package:sport_application/utils/app_colors.dart';
 import 'package:sport_application/services/booking_service.dart';
 import 'package:sport_application/models/booking_model.dart';
 import 'package:sport_application/services/booking_update_service.dart';
+import 'package:sport_application/services/notification_service.dart';
 import 'package:intl/intl.dart';
 
 class OrdersScreen extends StatefulWidget {
@@ -386,12 +387,31 @@ class _OrdersScreenState extends State<OrdersScreen>
                                       ],
                                     ),
                               );
-
                               if (cancel == true) {
                                 await BookingService.updateBookingStatus(
                                   booking.id,
                                   'cancelled',
                                 );
+
+                                // Format date for notification
+                                final formattedDate = DateFormat(
+                                  'EEEE, d MMMM yyyy',
+                                  'id_ID',
+                                ).format(booking.bookingDate);
+                                final timeSlot =
+                                    '${booking.startTime} - ${booking.endTime}';
+                                final venueName =
+                                    booking.venue?['name'] as String? ??
+                                    'Venue';
+
+                                // Create cancellation notification
+                                await NotificationService.addBookingCancelledNotification(
+                                  venueName,
+                                  formattedDate,
+                                  timeSlot,
+                                  booking.id,
+                                );
+
                                 loadBookings();
                               }
                             },
