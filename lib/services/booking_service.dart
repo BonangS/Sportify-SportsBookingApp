@@ -1,4 +1,5 @@
 import 'package:sport_application/models/booking_model.dart';
+import 'package:sport_application/models/venue_model.dart';
 import 'package:sport_application/services/supabase_service.dart';
 
 class BookingService {
@@ -171,6 +172,34 @@ class BookingService {
     } catch (e) {
       print('Error counting active bookings: $e');
       return 0;
+    }
+  }
+
+  static Future<List<BookingModel>> getUpcomingBookings() async {
+    try {
+      final user = SupabaseService.currentUser;
+      if (user == null) return [];
+
+      // Get current date in YYYY-MM-DD format
+      final now = DateTime.now();
+      final today =
+          "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+
+      // Query for bookings that are today or in the future and not cancelled
+      final response = await _bookings
+          .select('*, venues(*)')
+          .eq('user_id', user.id)
+          .gte('booking_date', today) // Greater than or equal to today
+          .not('status', 'eq', 'cancelled')
+          .order('booking_date', ascending: true) // Sort by nearest date first
+          .limit(3); // Only get the nearest 3 bookings for the home screen
+
+      return (response as List)
+          .map((booking) => BookingModel.fromJson(booking))
+          .toList();
+    } catch (e) {
+      print('Error fetching upcoming bookings: $e');
+      return [];
     }
   }
 }
