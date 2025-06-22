@@ -22,14 +22,13 @@ class ContentService {
 
   // Method untuk mendapatkan promo
   static Future<List<PromoModel>> getPromos() async {
-    // Dalam aplikasi yang sebenarnya, ini akan mengambil data dari API/database
-    // Untuk demo, saya gunakan data statis
+    // Data statis dengan URL gambar yang stabil
     final promos = [
       {
         'id': '1',
-        'title': 'Diskon 20% Booking Futsal',
+        'title': 'Promo 100k 2 jam Futsal',
         'imageUrl':
-            'https://megahgemilang.com/wp-content/uploads/2020/11/Tips-Cara-Membuat-Lapangan-Futsal.jpg',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSX7J2DmBa2MCECZviA4pF6lSOLBvfqZDAORw&s',
         'description':
             'Booking lapangan futsal sekarang dan dapatkan diskon 20%',
         'validUntil': DateTime.now().add(const Duration(days: 7)),
@@ -39,7 +38,7 @@ class ContentService {
         'id': '2',
         'title': 'Promo Badminton Weekend',
         'imageUrl':
-            'https://asset.ayo.co.id/image/venue/168888208726905.image_cropper_1688882076172_large.jpg',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5JFLSNji0t24n104AmLIjadlwajaUymdFxw&s',
         'description':
             'Dapatkan cashback 10% untuk booking lapangan badminton di akhir pekan',
         'validUntil': DateTime.now().add(const Duration(days: 14)),
@@ -49,7 +48,7 @@ class ContentService {
         'id': '3',
         'title': 'Special Promo Basket',
         'imageUrl':
-            'https://akcdn.detik.net.id/visual/2023/02/22/ilustrasi-lapangan-basket_169.jpeg?w=1200',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCHzTJNC73KILqs7-QJPqXYJwxqrEvJSsAOw&s',
         'description': 'Booking 2 jam, gratis 30 menit untuk lapangan basket',
         'validUntil': DateTime.now().add(const Duration(days: 30)),
         'code': 'BASKET30',
@@ -58,9 +57,9 @@ class ContentService {
         'id': '4',
         'title': 'Promo Padel Tennis',
         'imageUrl':
-            'https://cdn.britannica.com/09/143709-050-85350FBE/ball-tennis-court.jpg',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpvgYr6iCFdjMTso1fSFl-TFS9ELJvSywqmw&s',
         'description':
-            'Booking lapangan Padel Tennis di hari Selasa dan dapatkan diskon 15%',
+            'Booking lapangan Padel Tennis di hari Selasa dan dapatkan diskon 30%',
         'validUntil': DateTime.now().add(const Duration(days: 21)),
         'code': 'PADEL15',
       },
@@ -68,7 +67,7 @@ class ContentService {
         'id': '5',
         'title': 'Tennis Court Special',
         'imageUrl':
-            'https://static.nike.com/a/images/f_auto,cs_srgb/w_1536,c_limit/f9j4tqqi5zydaklxjy1i/nike-tennis-camps.jpg',
+            'https://images.pexels.com/photos/1432034/pexels-photo-1432034.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
         'description':
             'Ajak teman, dapat diskon. Booking untuk 4 orang dan dapatkan diskon 25%',
         'validUntil': DateTime.now().add(const Duration(days: 10)),
@@ -81,118 +80,90 @@ class ContentService {
 
   // Method untuk mendapatkan tips olahraga
   static Future<List<SportTipModel>> getSportsTips({String? category}) async {
-    // Dalam aplikasi yang sebenarnya, ini akan mengambil data dari API/database
-    // Untuk demo, saya gunakan data statis
-    final allTips = [      {
+    // Data statis dengan URL gambar yang stabil
+    final allTips = [
+      {
         'id': '1',
         'category': 'Futsal',
         'title': 'Tips Meningkatkan Skill Dribbling',
         'imageUrl':
-            'https://img.freepik.com/free-photo/young-man-playing-soccer-football_1150-14554.jpg',
+            'https://asset.kompas.com/crops/C25bZR5i5GmYq1k8sPVDFkvZ34E=/0x0:932x621/1200x800/data/photo/2021/09/24/614dc2ae58a28.png',
         'content':
-            'Latihan dribbling secara rutin dengan fokus pada kontrol bola dan kecepatan. Lakukan latihan slalom dengan bola di antara cone atau botol untuk meningkatkan kelincahan dan kontrol. Gunakan kedua kaki secara bergantian untuk meningkatkan keseimbangan keterampilan. Berlatih minimal 15-20 menit sehari untuk hasil yang optimal.',
+            'Latih kontrol bola dengan melakukan dribbling menggunakan kedua kaki. Mulai dengan kecepatan rendah dan tingkatkan secara bertahap.',
       },
       {
         'id': '2',
         'category': 'Badminton',
         'title': 'Cara Meningkatkan Smash',
         'imageUrl':
-            'https://img.freepik.com/free-photo/badminton-player-court_23-2148542789.jpg',
+            'https://vendors.id/wp-content/uploads/2024/02/ezgif-6-c51d735a49.webp',
         'content':
-            'Tingkatkan kekuatan lengan dan koordinasi untuk smash yang lebih mematikan. Lakukan latihan push-up dan pull-up secara rutin untuk meningkatkan kekuatan lengan. Perhatikan teknik pergelangan tangan saat melakukan smash. Latihan shadow badminton dengan fokus pada gerakan smash dapat meningkatkan timing dan power pukulan Anda.',
+            'Tingkatkan kekuatan lengan dan koordinasi untuk smash yang lebih mematikan. Lakukan latihan push-up dan pull-up secara rutin untuk meningkatkan kekuatan lengan.',
       },
       {
         'id': '3',
         'category': 'Basket',
         'title': 'Teknik Free Throw Sempurna',
         'imageUrl':
-            'https://img.olympics.com/images/image/private/t_s_pog_staticContent_hero_lg_2x/f_auto/primary/ufyaafuzmkaudonrjike',
+            'https://www.dbl.id/thumbs/extra-large/uploads/post/2020/05/25/LeBron_James_-_USA_Today.jpg',
         'content':
-            'Fokus pada posisi kaki dan konsistensi gerakan saat melakukan free throw.',
+            'Fokus pada posisi kaki dan konsistensi gerakan saat melakukan free throw. Pastikan lutut ditekuk dan follow-through yang sempurna.',
       },
       {
         'id': '4',
         'category': 'Voli',
         'title': 'Tips Receive dan Passing',
         'imageUrl':
-            'https://img.olympics.com/images/image/private/t_s_pog_staticContent_hero_lg_2x/f_auto/primary/vjg2s9j6xayqwb61wzkt',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7Q06_MjymyIWSY_IMtpTFo95MmmwWoD-Xzw&s',
         'content':
-            'Posisi tubuh yang tepat saat menerima bola sangat penting dalam permainan voli.',
+            'Posisi tubuh yang tepat saat menerima bola sangat penting dalam permainan voli. Tekuk lutut dan siapkan tangan dalam posisi yang benar.',
       },
       {
         'id': '5',
         'category': 'Pemanasan',
         'title': 'Pemanasan yang Tepat Sebelum Olahraga',
         'imageUrl':
-            'https://cdn1-production-images-kly.akamaized.net/oCm7nJUFwY11chiUW4WImIRi3L0=/800x450/smart/filters:quality(75):strip_icc():format(webp)/kly-media-production/medias/2754932/original/029823800_1552971555-iStock-890042784.jpg',
+            'https://smpsepuluhnopember.sch.id/storage/posts/posts_cr8r.jpg',
         'content':
-            'Lakukan pemanasan selama 10-15 menit untuk menghindari cedera.',
+            'Lakukan pemanasan selama 10-15 menit untuk menghindari cedera. Mulai dari peregangan ringan hingga gerakan yang lebih dinamis.',
       },
       {
         'id': '6',
         'category': 'Nutrisi',
         'title': 'Makanan yang Sebaiknya Dikonsumsi Sebelum Olahraga',
-        'imageUrl':
-            'https://asset.kompas.com/crops/9FagFiwhNR0GFBDRnT_m5qr7HwY=/0x0:1000x667/750x500/data/photo/2020/07/22/5f17b861cd283.jpg',
+        'imageUrl': 'https://blog.nasm.org/hubfs/sports-nutrition-guide.jpg',
         'content':
-            'Konsumsi karbohidrat kompleks dan protein 2-3 jam sebelum olahraga.',
+            'Konsumsi karbohidrat kompleks dan protein 2-3 jam sebelum olahraga. Hindari makanan berlemak dan terlalu berat.',
       },
       {
         'id': '7',
         'category': 'Padel',
         'title': 'Teknik Dasar Padel Tennis',
         'imageUrl':
-            'https://letsplaypadel.ca/static/3f0389b2aa3ea007b9dd1bdb8daffe65/14be6/shutterstock-1934013679.jpg',
+            'https://static.promediateknologi.id/crop/0x0:0x0/0x0/webp/photo/p2/01/2025/01/04/padel-3780755599.jpg',
         'content':
-            'Pelajari grip yang tepat dan teknik pukulan dasar untuk bermain padel tennis.',
+            'Pelajari grip yang tepat dan teknik pukulan dasar untuk bermain padel tennis. Fokus pada kontrol dan akurasi.',
       },
       {
         'id': '8',
         'category': 'Tenis',
         'title': 'Meningkatkan Serve dalam Tennis',
         'imageUrl':
-            'https://www.perfect-tennis.com/wp-content/uploads/2019/07/tennis-serve-toss.jpg',
+            'https://specials-images.forbesimg.com/imageserve/66c5f97ef4735ff16457f99c/Coco-Gauff/1440x0.jpg?fit=scale',
         'content':
-            'Kunci serve yang baik adalah konsistensi toss dan timing pukulan yang tepat.',
+            'Kunci serve yang baik adalah konsistensi toss dan timing pukulan yang tepat. Latih serve secara rutin untuk meningkatkan akurasi.',
       },
       {
         'id': '9',
         'category': 'Cricket',
         'title': 'Teknik Batting dalam Cricket',
         'imageUrl':
-            'https://cdn.dnaindia.com/sites/default/files/styles/full/public/2021/01/20/951102-virat-kohli-2.jpg',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGnQgH_D0ZNGagg7dGnoFJwN1ts3LTFzExLw&s',
         'content':
-            'Posisi badan dan teknik ayunan yang tepat untuk batting dalam cricket.',
-      },      {
-        'id': '10',
-        'category': 'Golf',
-        'title': 'Tips Putting yang Akurat',
-        'imageUrl':
-            'https://img.freepik.com/free-photo/golfer-green-putting-golf-ball-into-hole_645882-1250.jpg',
-        'content':
-            'Fokus pada konsistensi ayunan dan kontrol kecepatan untuk pukulan putting. Latihan dengan panduan garis dapat membantu Anda memahami arah dan lintasan bola. Gunakan grip yang konsisten dan jaga agar kepala tetap diam selama ayunan untuk hasil yang lebih akurat.',
-      },
-      {
-        'id': '11',
-        'category': 'Futsal',
-        'title': 'Teknik Passing yang Efektif',
-        'imageUrl':
-            'https://img.freepik.com/free-photo/soccer-players-practicing-with-ball_23-2147701676.jpg',
-        'content':
-            'Passing yang akurat adalah kunci permainan futsal yang baik. Gunakan bagian dalam kaki untuk passing jarak pendek dan menengah. Latih kekuatan dan akurasi dengan berlatih passing ke target yang ditentukan. Komunikasi dengan rekan tim juga sangat penting untuk menghasilkan passing yang efektif.',
-      },
-      {
-        'id': '12',
-        'category': 'Basket',
-        'title': 'Meningkatkan Jump Shot',
-        'imageUrl':
-            'https://img.freepik.com/free-photo/basketball-player-action-sunset_654080-1650.jpg',
-        'content':
-            'Kunci jump shot yang baik adalah keseimbangan dan konsistensi. Latih kekuatan kaki dengan squat dan lompat secara teratur. Form shooting juga penting - pastikan siku sejajar dengan ring dan lepaskan bola pada puncak lompatan. Latihan 100 tembakan setiap hari dapat meningkatkan konsistensi Anda secara signifikan.',
+            'Pelajari teknik batting dasar cricket dengan fokus pada footwork dan timing yang tepat.',
       },
     ];
 
-    // Filter berdasarkan category jika ada
     final tips =
         category != null
             ? allTips.where((tip) => tip['category'] == category).toList()
@@ -200,9 +171,10 @@ class ContentService {
 
     return tips.map((tip) => SportTipModel.fromJson(tip)).toList();
   }
+
   // Method untuk mendapatkan event olahraga
   static Future<List<Map<String, dynamic>>> getUpcomingEvents() async {
-    // Untuk implementasi demo
+    // Data statis dengan URL gambar yang stabil
     return [
       {
         'id': '1',
@@ -210,8 +182,9 @@ class ContentService {
         'date': DateTime.now().add(const Duration(days: 5)),
         'location': 'GOR Futsal Center',
         'imageUrl':
-            'https://img.freepik.com/free-photo/football-concept-with-copyspace_23-2147754645.jpg',
-        'description': 'Turnamen futsal tahunan antar universitas dengan total hadiah jutaan rupiah. Daftarkan tim Anda sekarang!',
+            'https://fsh.walisongo.ac.id/wp-content/uploads/2023/07/WhatsApp%20Image%202023-07-10%20at%2008.20.55.jpeg',
+        'description':
+            'Turnamen futsal tahunan antar universitas dengan total hadiah jutaan rupiah. Daftarkan tim Anda sekarang!',
       },
       {
         'id': '2',
@@ -219,8 +192,9 @@ class ContentService {
         'date': DateTime.now().add(const Duration(days: 3)),
         'location': 'Badminton Hall',
         'imageUrl':
-            'https://img.freepik.com/free-photo/badminton-racket-shuttlecock-concept_23-2148352343.jpg',
-        'description': 'Pelajari teknik dasar dan lanjutan badminton dari pelatih nasional. Tersedia sesi untuk pemula dan tingkat lanjut.',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsyhimS825jff5u6diMj9fO1y5ZHXphORvxg&s',
+        'description':
+            'Pelajari teknik dasar dan lanjutan badminton dari pelatih nasional. Tersedia sesi untuk pemula dan tingkat lanjut.',
       },
       {
         'id': '3',
@@ -228,8 +202,9 @@ class ContentService {
         'date': DateTime.now().add(const Duration(days: 7)),
         'location': 'Lapangan Basket Central',
         'imageUrl':
-            'https://img.freepik.com/free-photo/silhouette-basketball-player-game-sport-athletic_53876-129817.jpg',
-        'description': 'Kompetisi basket 3x3 untuk semua kategori umur. Daftar segera karena kuota terbatas!',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZIa2o6-wvj07BDSajTI2U9zMCfp90vOzthg&s',
+        'description':
+            'Kompetisi basket 3x3 untuk semua kategori umur. Daftar segera karena kuota terbatas!',
       },
       {
         'id': '4',
@@ -237,16 +212,16 @@ class ContentService {
         'date': DateTime.now().add(const Duration(days: 14)),
         'location': 'Tennis Court Plaza',
         'imageUrl':
-            'https://img.freepik.com/free-photo/tennis-ball-racket_144627-27349.jpg',
-        'description': 'Turnamen tennis terbuka untuk kategori tunggal dan ganda. Pendaftaran dibuka sampai 3 hari sebelum acara.',
+            'https://d1csarkz8obe9u.cloudfront.net/posterpreviews/tennis-tournament-flyer-template-design-870648063a74dc7ece9f2fc39d93ffc2_screen.jpg?ts=1689962421',
+        'description':
+            'Turnamen tennis terbuka untuk kategori tunggal dan ganda. Pendaftaran dibuka sampai 3 hari sebelum acara.',
       },
     ];
   }
 
   // Method untuk mendapatkan lokasi venue terdekat (untuk fitur mini map)
   static Future<List<Map<String, dynamic>>> getNearbyVenueLocations() async {
-    // Dalam aplikasi yang sebenarnya, ini akan mengambil data lokasi dari GPS dan database
-    // Untuk demo, saya gunakan data statis
+    // Data statis
     return [
       {
         'id': '1',
