@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/screens/register_screen.dart';
+import 'package:sport_application/screens/register_screen_new.dart';
 import 'package:sport_application/services/auth_service.dart';
 import 'package:sport_application/utils/app_colors.dart';
 
@@ -196,7 +196,7 @@ class _LoginScreenNewState extends State<LoginScreenNew> {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => const RegisterScreen(),
+                                builder: (context) => const RegisterScreenNew(),
                               ),
                             );
                           },

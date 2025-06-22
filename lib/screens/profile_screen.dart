@@ -75,129 +75,116 @@ class _ProfileScreenState extends State<ProfileScreen> {
       print('Error loading notifications: $e');
     }
   }
-
   // Show notifications dialog
   void _showNotificationsDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Notifikasi',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Notifikasi',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (notifications.isNotEmpty)
+                    TextButton(
+                      onPressed: () async {
+                        await NotificationService.markAllAsRead();
+                        setState(() {
+                          unreadNotificationsCount = 0;
+                        });
+                        Navigator.pop(context);
+                        loadNotifications();
+                      },
+                      child: const Text(
+                        'Tandai Semua Dibaca',
+                        style: TextStyle(color: AppColors.primary),
                       ),
-                      if (notifications.isNotEmpty)
-                        TextButton(
-                          onPressed: () async {
-                            await NotificationService.markAllAsRead();
-                            // Simply update the UI counters
-                            setState(() {
-                              unreadNotificationsCount = 0;
-                            });
-                            Navigator.pop(context);
-                            // Reload notifications to get the updated status
-                            loadNotifications();
-                          },
-                          child: const Text(
-                            'Tandai Semua Dibaca',
-                            style: TextStyle(color: AppColors.primary),
+                    ),
+                ],
+              ),
+            ),
+            const Divider(height: 0),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.6,
+              ),
+              child: notifications.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.notifications_off,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Tidak ada notifikasi',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
                           ),
                         ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 0),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.6,
-                  ),
-                  child:
-                      notifications.isEmpty
-                          ? const Padding(
-                            padding: EdgeInsets.all(30.0),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.notifications_off,
-                                  size: 70,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(height: 16),
-                                Text(
-                                  'Tidak ada notifikasi',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                          : ListView.separated(
-                            shrinkWrap: true,
-                            padding: EdgeInsets.zero,
-                            itemCount: notifications.length,
-                            separatorBuilder:
-                                (context, index) => const Divider(height: 1),
-                            itemBuilder: (context, index) {
-                              final notification = notifications[index];
+                      ],
+                    ),
+                  )
+                : ListView.separated(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    itemCount: notifications.length,
+                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final notification = notifications[index];
 
-                              // Choose icon based on notification type
-                              IconData icon;
-                              Color iconColor;
+                      // Choose icon based on notification type
+                      IconData icon;
+                      Color iconColor;
 
-                              switch (notification.type) {
-                                case 'payment':
-                                  icon = Icons.payment;
-                                  iconColor = Colors.green;
-                                  break;
-                                case 'cancellation':
-                                  icon = Icons.cancel;
-                                  iconColor = Colors.red;
-                                  break;
-                                default:
-                                  icon = Icons.notifications;
-                                  iconColor = AppColors.primary;
-                              }
-                              return InkWell(
-                                onTap: () async {
-                                  // Mark as read when tapped
-                                  if (!notification.isRead) {
-                                    await NotificationService.markAsRead(
-                                      notification.id,
-                                    );
-                                    loadNotifications();
-                                    // Update badge count in UI
-                                    setState(() {
-                                      if (unreadNotificationsCount > 0) {
-                                        unreadNotificationsCount--;
-                                      }
-                                    });
-                                  }
+                      switch (notification.type) {
+                        case 'payment':
+                          icon = Icons.payment;
+                          iconColor = Colors.green;
+                          break;
+                        case 'cancellation':
+                          icon = Icons.cancel;
+                          iconColor = Colors.red;
+                          break;
+                        default:
+                          icon = Icons.notifications;
+                          iconColor = AppColors.primary;
+                      }
+                      
+                      return InkWell(
+                        onTap: () async {
+                          // Mark as read when tapped
+                          if (!notification.isRead) {
+                            await NotificationService.markAsRead(
+                              notification.id,
+                            );
+                            loadNotifications();
+                          }
 
-                                  // Navigate to relevant screen based on notification type
-                                  if (notification.bookingId != null) {
-                                    Navigator.of(context).pop(); // Close dialog
-                                    // Navigate to Orders tab with the booking ID
-                                    Navigator.of(
-                                      context,
-                                    ).pushNamedAndRemoveUntil(
-                                      '/main',
-                                      (route) => false,
+                          // Navigate to relevant screen based on notification type
+                          if (notification.bookingId != null) {
+                            Navigator.of(context).pop(); // Close dialog
+                            // Navigate to Orders tab with the booking ID
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              '/main',
+                              (route) => false,
                                       arguments: {
                                         'initialTab': 1,
                                         'bookingId': notification.bookingId,
