@@ -1,7 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:sport_application/models/user_model.dart';
 import 'package:sport_application/services/auth_service.dart';
 import 'package:sport_application/utils/app_colors.dart';
+import 'package:sport_application/services/supabase_service.dart';
+import 'package:sport_application/utils/debug_utils.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final UserModel user;
@@ -18,6 +22,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _phoneController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -34,6 +40,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking image: ${e.toString()}')),
+      );
+    }
+  }
+
   Future<void> _saveChanges() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -41,10 +64,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       });
 
       try {
+        String? profilePictureUrl; // Upload image if selected
+        if (_imageFile != null) {
+          // Log file information for debugging
+          DebugUtils.logFileInfo(_imageFile!);
+
+          try {
+            // Use the correct function name and parameters
+            profilePictureUrl = await SupabaseService.uploadProfilePicture(
+              _imageFile!.path,
+              widget.user.id,
+            );
+            debugPrint(
+              'Profile picture uploaded successfully: $profilePictureUrl',
+            );
+          } catch (uploadError) {
+            DebugUtils.logError('Profile picture upload', uploadError);
+            // Show a specific error for the image upload failure, but continue with profile update
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Gagal mengupload foto profil: ${uploadError.toString()}',
+                  ),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            }
+            // Continue with profile update without changing the profile picture
+          }
+        }
+
+        // Update profile info regardless of whether image upload succeeded
         await _authService.updateProfile(
           userId: widget.user.id,
           fullName: _nameController.text.trim(),
           phoneNumber: _phoneController.text.trim(),
+          profilePictureUrl: profilePictureUrl,
         );
 
         if (mounted) {
@@ -60,10 +116,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ); // Return true to indicate changes were made
         }
       } catch (e) {
+        DebugUtils.logError('Update profile', e);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Gagal memperbarui profil: ${e.toString()}'),
+              backgroundColor: Colors.red,
             ),
           );
         }
@@ -99,12 +157,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       CircleAvatar(
                         radius: 60,
                         backgroundImage:
-                            widget.user.profilePictureUrl != null
-                                ? NetworkImage(widget.user.profilePictureUrl!)
-                                : null,
+                            _imageFile != null
+                                ? FileImage(_imageFile!)
+                                : (widget.user.profilePictureUrl != null
+                                    ? NetworkImage(
+                                          widget.user.profilePictureUrl!,
+                                        )
+                                        as ImageProvider
+                                    : null),
                         backgroundColor: AppColors.backgroundGrey,
                         child:
-                            widget.user.profilePictureUrl == null
+                            _imageFile == null &&
+                                    widget.user.profilePictureUrl == null
                                 ? Text(
                                   widget.user.fullName
                                           ?.substring(0, 1)
@@ -113,22 +177,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   style: const TextStyle(fontSize: 40),
                                 )
                                 : null,
-                      ),
-                      // Upload button positioned at the bottom right of the avatar
+                      ), // Upload button positioned at the bottom right of the avatar
                       Positioned(
                         bottom: 0,
                         right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 20,
+                        child: GestureDetector(
+                          onTap: () => _pickImage(),
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                         ),
                       ),

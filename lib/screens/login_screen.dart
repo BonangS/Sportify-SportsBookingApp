@@ -53,16 +53,15 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     }
-  }
-
-  @override
+  }  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -161,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ],
-            ),
+            ),            ),
           ),
         ),
       ),

@@ -8,14 +8,13 @@ class PromoCard extends StatelessWidget {
 
   const PromoCard({Key? key, required this.promo, this.onTap})
     : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 280,
-        margin: const EdgeInsets.only(right: 16),
+        margin: const EdgeInsets.only(right: 16, bottom: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: Colors.white,
