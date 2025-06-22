@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sport_application/models/sport_tip_model.dart';
 import 'package:sport_application/utils/app_colors.dart';
+import 'package:sport_application/utils/image_utils.dart';
 
 class SportTipCard extends StatelessWidget {
   final SportTipModel sportTip;
@@ -36,7 +37,7 @@ class SportTipCard extends StatelessWidget {
                 top: Radius.circular(12),
               ),
               child: Image.network(
-                sportTip.imageUrl,
+                sportTip.getImage(),
                 height: 110,
                 width: double.infinity,
                 fit: BoxFit.cover,

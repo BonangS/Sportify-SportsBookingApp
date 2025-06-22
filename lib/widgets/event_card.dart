@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sport_application/utils/app_colors.dart';
 import 'package:intl/intl.dart';
+import 'package:sport_application/utils/image_utils.dart';
 
 class EventCard extends StatelessWidget {
   final Map<String, dynamic> event;
@@ -37,7 +38,11 @@ class EventCard extends StatelessWidget {
                 left: Radius.circular(12),
               ),
               child: Image.network(
-                event['imageUrl'] as String,
+                ImageUtils.getEventImage(
+                  event['imageUrl'] as String?,
+                  event['title'] as String,
+                  event['location'] as String,
+                ),
                 height: 100,
                 width: 100,
                 fit: BoxFit.cover,

@@ -83,24 +83,23 @@ class ContentService {
   static Future<List<SportTipModel>> getSportsTips({String? category}) async {
     // Dalam aplikasi yang sebenarnya, ini akan mengambil data dari API/database
     // Untuk demo, saya gunakan data statis
-    final allTips = [
-      {
+    final allTips = [      {
         'id': '1',
         'category': 'Futsal',
         'title': 'Tips Meningkatkan Skill Dribbling',
         'imageUrl':
-            'https://cdn0-production-images-kly.akamaized.net/gSYMZkfdPVEiRsOpgaaJ8KWs-Rc=/800x450/smart/filters:quality(75):strip_icc():format(webp)/kly-media-production/medias/3934229/original/024516100_1644481507-pexels-pixabay-47730.jpg',
+            'https://img.freepik.com/free-photo/young-man-playing-soccer-football_1150-14554.jpg',
         'content':
-            'Latihan dribbling secara rutin dengan fokus pada kontrol bola dan kecepatan.',
+            'Latihan dribbling secara rutin dengan fokus pada kontrol bola dan kecepatan. Lakukan latihan slalom dengan bola di antara cone atau botol untuk meningkatkan kelincahan dan kontrol. Gunakan kedua kaki secara bergantian untuk meningkatkan keseimbangan keterampilan. Berlatih minimal 15-20 menit sehari untuk hasil yang optimal.',
       },
       {
         'id': '2',
         'category': 'Badminton',
         'title': 'Cara Meningkatkan Smash',
         'imageUrl':
-            'https://blog-images-1.pharmeasy.in/blog/production/wp-content/uploads/2021/01/30152758/shutterstock_149662307-1.jpg',
+            'https://img.freepik.com/free-photo/badminton-player-court_23-2148542789.jpg',
         'content':
-            'Tingkatkan kekuatan lengan dan koordinasi untuk smash yang lebih mematikan.',
+            'Tingkatkan kekuatan lengan dan koordinasi untuk smash yang lebih mematikan. Lakukan latihan push-up dan pull-up secara rutin untuk meningkatkan kekuatan lengan. Perhatikan teknik pergelangan tangan saat melakukan smash. Latihan shadow badminton dengan fokus pada gerakan smash dapat meningkatkan timing dan power pukulan Anda.',
       },
       {
         'id': '3',
@@ -164,15 +163,32 @@ class ContentService {
             'https://cdn.dnaindia.com/sites/default/files/styles/full/public/2021/01/20/951102-virat-kohli-2.jpg',
         'content':
             'Posisi badan dan teknik ayunan yang tepat untuk batting dalam cricket.',
-      },
-      {
+      },      {
         'id': '10',
         'category': 'Golf',
         'title': 'Tips Putting yang Akurat',
         'imageUrl':
-            'https://golf.com/wp-content/uploads/2020/04/putting-drill-2.jpg',
+            'https://img.freepik.com/free-photo/golfer-green-putting-golf-ball-into-hole_645882-1250.jpg',
         'content':
-            'Fokus pada konsistensi ayunan dan kontrol kecepatan untuk pukulan putting.',
+            'Fokus pada konsistensi ayunan dan kontrol kecepatan untuk pukulan putting. Latihan dengan panduan garis dapat membantu Anda memahami arah dan lintasan bola. Gunakan grip yang konsisten dan jaga agar kepala tetap diam selama ayunan untuk hasil yang lebih akurat.',
+      },
+      {
+        'id': '11',
+        'category': 'Futsal',
+        'title': 'Teknik Passing yang Efektif',
+        'imageUrl':
+            'https://img.freepik.com/free-photo/soccer-players-practicing-with-ball_23-2147701676.jpg',
+        'content':
+            'Passing yang akurat adalah kunci permainan futsal yang baik. Gunakan bagian dalam kaki untuk passing jarak pendek dan menengah. Latih kekuatan dan akurasi dengan berlatih passing ke target yang ditentukan. Komunikasi dengan rekan tim juga sangat penting untuk menghasilkan passing yang efektif.',
+      },
+      {
+        'id': '12',
+        'category': 'Basket',
+        'title': 'Meningkatkan Jump Shot',
+        'imageUrl':
+            'https://img.freepik.com/free-photo/basketball-player-action-sunset_654080-1650.jpg',
+        'content':
+            'Kunci jump shot yang baik adalah keseimbangan dan konsistensi. Latih kekuatan kaki dengan squat dan lompat secara teratur. Form shooting juga penting - pastikan siku sejajar dengan ring dan lepaskan bola pada puncak lompatan. Latihan 100 tembakan setiap hari dapat meningkatkan konsistensi Anda secara signifikan.',
       },
     ];
 
@@ -184,7 +200,6 @@ class ContentService {
 
     return tips.map((tip) => SportTipModel.fromJson(tip)).toList();
   }
-
   // Method untuk mendapatkan event olahraga
   static Future<List<Map<String, dynamic>>> getUpcomingEvents() async {
     // Untuk implementasi demo
@@ -195,7 +210,8 @@ class ContentService {
         'date': DateTime.now().add(const Duration(days: 5)),
         'location': 'GOR Futsal Center',
         'imageUrl':
-            'https://s3.ivideosmart.com/production/document/100423/TQkvWwGdrU3lBQUQ6IB3/thumbnails/TQkvWwGdrU3lBQUQ6IB3_1509450657.0_640_360.jpg',
+            'https://img.freepik.com/free-photo/football-concept-with-copyspace_23-2147754645.jpg',
+        'description': 'Turnamen futsal tahunan antar universitas dengan total hadiah jutaan rupiah. Daftarkan tim Anda sekarang!',
       },
       {
         'id': '2',
@@ -203,7 +219,8 @@ class ContentService {
         'date': DateTime.now().add(const Duration(days: 3)),
         'location': 'Badminton Hall',
         'imageUrl':
-            'https://www.yonex.com/media/wysiwyg/yonex-badminton-doubles-roundup-banner.jpg',
+            'https://img.freepik.com/free-photo/badminton-racket-shuttlecock-concept_23-2148352343.jpg',
+        'description': 'Pelajari teknik dasar dan lanjutan badminton dari pelatih nasional. Tersedia sesi untuk pemula dan tingkat lanjut.',
       },
       {
         'id': '3',
@@ -211,7 +228,8 @@ class ContentService {
         'date': DateTime.now().add(const Duration(days: 7)),
         'location': 'Lapangan Basket Central',
         'imageUrl':
-            'https://assets.nst.com.my/images/articles/25bb1_1545694912.jpg',
+            'https://img.freepik.com/free-photo/silhouette-basketball-player-game-sport-athletic_53876-129817.jpg',
+        'description': 'Kompetisi basket 3x3 untuk semua kategori umur. Daftar segera karena kuota terbatas!',
       },
       {
         'id': '4',
@@ -219,7 +237,8 @@ class ContentService {
         'date': DateTime.now().add(const Duration(days: 14)),
         'location': 'Tennis Court Plaza',
         'imageUrl':
-            'https://www.atptour.com/-/media/images/news/2022/01/04/00/45/nadal-melbourne-2022-first-round.jpg',
+            'https://img.freepik.com/free-photo/tennis-ball-racket_144627-27349.jpg',
+        'description': 'Turnamen tennis terbuka untuk kategori tunggal dan ganda. Pendaftaran dibuka sampai 3 hari sebelum acara.',
       },
     ];
   }
