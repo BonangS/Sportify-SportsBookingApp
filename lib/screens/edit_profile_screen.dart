@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:sport_application/models/user_model.dart';
-import 'package:sport_application/services/auth_service.dart';
-import 'package:sport_application/utils/app_colors.dart';
-import 'package:sport_application/services/supabase_service.dart';
-import 'package:sport_application/utils/debug_utils.dart';
+import 'package:Sportify/models/user_model.dart';
+import 'package:Sportify/services/auth_service.dart';
+import 'package:Sportify/utils/app_colors.dart';
+import 'package:Sportify/services/supabase_service.dart';
+import 'package:Sportify/utils/debug_utils.dart';
 import 'package:image_picker/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {

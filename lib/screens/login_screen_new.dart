@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/screens/register_screen_new.dart';
-import 'package:sport_application/services/auth_service.dart';
-import 'package:sport_application/utils/app_colors.dart';
+import 'package:Sportify/screens/register_screen_new.dart';
+import 'package:Sportify/services/auth_service.dart';
+import 'package:Sportify/utils/app_colors.dart';
 
 class LoginScreenNew extends StatefulWidget {
   const LoginScreenNew({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/models/sport_tip_model.dart';
-import 'package:sport_application/utils/app_colors.dart';
-import 'package:sport_application/utils/image_utils.dart';
+import 'package:Sportify/models/sport_tip_model.dart';
+import 'package:Sportify/utils/app_colors.dart';
+import 'package:Sportify/utils/image_utils.dart';
 
 class SportTipCard extends StatelessWidget {
   final SportTipModel sportTip;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/screens/login_screen_new.dart';
-import 'package:sport_application/screens/main_screen.dart';
-import 'package:sport_application/services/supabase_service.dart';
+import 'package:Sportify/screens/login_screen_new.dart';
+import 'package:Sportify/screens/main_screen.dart';
+import 'package:Sportify/services/supabase_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {

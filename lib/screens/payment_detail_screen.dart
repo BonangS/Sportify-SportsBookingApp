@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sport_application/models/venue_model.dart';
-import 'package:sport_application/models/booking_model.dart';
-import 'package:sport_application/utils/app_colors.dart';
-import 'package:sport_application/services/booking_service.dart';
-import 'package:sport_application/services/supabase_service.dart';
-import 'package:sport_application/services/booking_update_service.dart';
-import 'package:sport_application/services/notification_service.dart';
+import 'package:Sportify/models/venue_model.dart';
+import 'package:Sportify/models/booking_model.dart';
+import 'package:Sportify/utils/app_colors.dart';
+import 'package:Sportify/services/booking_service.dart';
+import 'package:Sportify/services/supabase_service.dart';
+import 'package:Sportify/services/booking_update_service.dart';
+import 'package:Sportify/services/notification_service.dart';
 
 class PaymentDetailScreen extends StatefulWidget {
   final Venue venue;

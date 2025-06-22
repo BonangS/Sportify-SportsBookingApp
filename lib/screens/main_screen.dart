@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/screens/home_screen.dart';
-import 'package:sport_application/screens/orders_screen.dart';
-import 'package:sport_application/screens/profile_screen.dart';
-import 'package:sport_application/utils/app_colors.dart';
+import 'package:Sportify/screens/home_screen.dart';
+import 'package:Sportify/screens/orders_screen.dart';
+import 'package:Sportify/screens/profile_screen.dart';
+import 'package:Sportify/utils/app_colors.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialTab;

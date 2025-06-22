@@ -1,5 +1,5 @@
-import 'package:sport_application/models/user_model.dart';
-import 'package:sport_application/services/supabase_service.dart';
+import 'package:Sportify/models/user_model.dart';
+import 'package:Sportify/services/supabase_service.dart';
 
 class AuthService {
   static Future<UserModel?> getCurrentUser() async {
@@ -7,10 +7,8 @@ class AuthService {
       final user = SupabaseService.currentUser;
       if (user == null) return null;
 
-      final response = await SupabaseService.users
-          .select()
-          .eq('id', user.id)
-          .single();
+      final response =
+          await SupabaseService.users.select().eq('id', user.id).single();
 
       return UserModel.fromJson(response);
     } catch (e) {
@@ -30,10 +28,7 @@ class AuthService {
       final response = await SupabaseService.client.auth.signUp(
         email: email,
         password: password,
-        data: {
-          'full_name': full_name,
-          'phone_number': phone_number,
-        },
+        data: {'full_name': full_name, 'phone_number': phone_number},
       );
 
       if (response.user == null) {
@@ -84,11 +79,12 @@ class AuthService {
       );
 
       if (response.user != null) {
-        final userData = await SupabaseService.users
-            .select()
-            .eq('id', response.user!.id)
-            .single();
-        
+        final userData =
+            await SupabaseService.users
+                .select()
+                .eq('id', response.user!.id)
+                .single();
+
         return UserModel.fromJson(userData);
       }
       throw 'Login failed';
@@ -117,9 +113,7 @@ class AuthService {
       };
 
       if (updates.isNotEmpty) {
-        await SupabaseService.users
-            .update(updates)
-            .eq('id', userId);
+        await SupabaseService.users.update(updates).eq('id', userId);
       }
     } catch (e) {
       print('Error updating profile: $e');

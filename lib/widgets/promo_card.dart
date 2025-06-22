@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/utils/app_colors.dart';
-import 'package:sport_application/models/promo_model.dart';
+import 'package:Sportify/utils/app_colors.dart';
+import 'package:Sportify/models/promo_model.dart';
 
 class PromoCard extends StatelessWidget {
   final PromoModel promo;

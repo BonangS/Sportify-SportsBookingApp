@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:sport_application/models/notification_model.dart';
-import 'package:sport_application/services/supabase_service.dart';
+import 'package:Sportify/models/notification_model.dart';
+import 'package:Sportify/services/supabase_service.dart';
 import 'package:uuid/uuid.dart';
 
 class NotificationService {

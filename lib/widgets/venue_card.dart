@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/models/venue_model.dart';
-import 'package:sport_application/utils/app_colors.dart';
-import 'package:sport_application/screens/detail_screen.dart';
+import 'package:Sportify/models/venue_model.dart';
+import 'package:Sportify/utils/app_colors.dart';
+import 'package:Sportify/screens/detail_screen.dart';
 import 'package:intl/intl.dart';
 
 class VenueCard extends StatelessWidget {

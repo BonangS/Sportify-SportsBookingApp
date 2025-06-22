@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/models/promo_model.dart';
-import 'package:sport_application/models/sport_tip_model.dart';
-import 'package:sport_application/models/venue_model.dart';
+import 'package:Sportify/models/promo_model.dart';
+import 'package:Sportify/models/sport_tip_model.dart';
+import 'package:Sportify/models/venue_model.dart';
 
 class ContentService {
   // Method untuk mendapatkan daftar kategori olahraga

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:sport_application/utils/app_colors.dart';
+import 'package:Sportify/utils/app_colors.dart';
 
 class MiniMapWidget extends StatelessWidget {
   final List<Map<String, dynamic>> locations;

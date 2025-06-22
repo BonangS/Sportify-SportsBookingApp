@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/services/auth_service.dart';
-import 'package:sport_application/utils/app_colors.dart';
+import 'package:Sportify/services/auth_service.dart';
+import 'package:Sportify/utils/app_colors.dart';
 
 class RegisterScreenNew extends StatefulWidget {
   const RegisterScreenNew({super.key});

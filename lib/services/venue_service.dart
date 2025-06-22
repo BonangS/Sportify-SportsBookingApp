@@ -1,5 +1,5 @@
-import 'package:sport_application/models/venue_model.dart';
-import 'package:sport_application/services/supabase_service.dart';
+import 'package:Sportify/models/venue_model.dart';
+import 'package:Sportify/services/supabase_service.dart';
 
 class VenueService {
   static Future<List<Venue>> getVenues({String? category}) async {

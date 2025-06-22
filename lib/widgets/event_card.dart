@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/utils/app_colors.dart';
+import 'package:Sportify/utils/app_colors.dart';
 import 'package:intl/intl.dart';
-import 'package:sport_application/utils/image_utils.dart';
+import 'package:Sportify/utils/image_utils.dart';
 
 class EventCard extends StatelessWidget {
   final Map<String, dynamic> event;

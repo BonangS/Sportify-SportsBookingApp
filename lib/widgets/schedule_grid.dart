@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/utils/app_colors.dart';
+import 'package:Sportify/utils/app_colors.dart';
 
 class ScheduleGrid extends StatefulWidget {
   const ScheduleGrid({super.key});
@@ -32,22 +32,24 @@ class _ScheduleGridState extends State<ScheduleGrid> {
         final isSelected = _selectedSlots.contains(hour);
 
         return GestureDetector(
-          onTap: isBooked
-              ? null // Tidak bisa di-tap jika sudah dibooking
-              : () {
-                  setState(() {
-                    if (isSelected) {
-                      _selectedSlots.remove(hour);
-                    } else {
-                      _selectedSlots.add(hour);
-                    }
-                  });
-                },
+          onTap:
+              isBooked
+                  ? null // Tidak bisa di-tap jika sudah dibooking
+                  : () {
+                    setState(() {
+                      if (isSelected) {
+                        _selectedSlots.remove(hour);
+                      } else {
+                        _selectedSlots.add(hour);
+                      }
+                    });
+                  },
           child: Container(
             decoration: BoxDecoration(
-              color: isSelected
-                  ? AppColors.primary
-                  : isBooked
+              color:
+                  isSelected
+                      ? AppColors.primary
+                      : isBooked
                       ? AppColors.bookedSlot
                       : AppColors.availableSlot,
               borderRadius: BorderRadius.circular(8),
@@ -59,9 +61,10 @@ class _ScheduleGridState extends State<ScheduleGrid> {
               child: Text(
                 '$hour:00',
                 style: TextStyle(
-                  color: isSelected
-                      ? Colors.white
-                      : isBooked
+                  color:
+                      isSelected
+                          ? Colors.white
+                          : isBooked
                           ? Colors.grey.shade600
                           : AppColors.primary,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

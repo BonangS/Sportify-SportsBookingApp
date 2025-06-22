@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:sport_application/config/supabase_config.dart';
+import 'package:Sportify/config/supabase_config.dart';
 
 class SupabaseService {
   static final client = Supabase.instance.client;

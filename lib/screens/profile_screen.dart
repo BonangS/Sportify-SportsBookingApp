@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:sport_application/utils/app_colors.dart';
-import 'package:sport_application/services/auth_service.dart';
-import 'package:sport_application/services/supabase_service.dart';
-import 'package:sport_application/services/booking_service.dart';
-import 'package:sport_application/services/notification_service.dart';
-import 'package:sport_application/models/user_model.dart';
-import 'package:sport_application/models/notification_model.dart';
-import 'package:sport_application/screens/login_screen_new.dart';
-import 'package:sport_application/screens/edit_profile_screen.dart';
+import 'package:Sportify/utils/app_colors.dart';
+import 'package:Sportify/services/auth_service.dart';
+import 'package:Sportify/services/supabase_service.dart';
+import 'package:Sportify/services/booking_service.dart';
+import 'package:Sportify/services/notification_service.dart';
+import 'package:Sportify/models/user_model.dart';
+import 'package:Sportify/models/notification_model.dart';
+import 'package:Sportify/screens/login_screen_new.dart';
+import 'package:Sportify/screens/edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/utils/app_colors.dart';
-import 'package:sport_application/models/booking_model.dart';
+import 'package:Sportify/utils/app_colors.dart';
+import 'package:Sportify/models/booking_model.dart';
 import 'package:intl/intl.dart';
 
 class UpcomingBookingCard extends StatelessWidget {
