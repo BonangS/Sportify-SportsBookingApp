@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sport_application/screens/login_screen.dart';
+import 'package:sport_application/screens/login_screen_new.dart';
 import 'package:sport_application/screens/main_screen.dart';
 import 'package:sport_application/services/supabase_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -36,7 +36,7 @@ class MainApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const LoginScreen(),
+        '/': (context) => const LoginScreenNew(),
       }, // Handle dynamic routes with parameters
       onGenerateRoute: (settings) {
         if (settings.name == '/main') {

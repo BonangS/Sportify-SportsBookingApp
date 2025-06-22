@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sport_application/utils/app_colors.dart';
 import 'package:sport_application/services/auth_service.dart';
 import 'package:sport_application/services/supabase_service.dart';
 import 'package:sport_application/services/booking_service.dart';
+import 'package:sport_application/services/notification_service.dart';
 import 'package:sport_application/models/user_model.dart';
-import 'package:sport_application/screens/login_screen.dart';
+import 'package:sport_application/models/notification_model.dart';
+import 'package:sport_application/screens/login_screen_new.dart';
 import 'package:sport_application/screens/edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -18,11 +21,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   UserModel? user;
   bool isLoading = true;
   int activeBookingsCount = 0;
+  List<NotificationModel> notifications = [];
+  int unreadNotificationsCount = 0;
+  StreamSubscription? _notificationSubscription;
 
   @override
   void initState() {
     super.initState();
     loadUserProfile();
+    loadNotifications(); // Listen for new notifications
+    _notificationSubscription = NotificationService.notificationStream.listen((
+      _,
+    ) {
+      loadNotifications();
+      // If the notification might affect user data (like booking status), refresh the profile too
+      loadUserProfile();
+    });
+  }
+
+  @override
+  void dispose() {
+    _notificationSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> loadUserProfile() async {
@@ -40,6 +60,236 @@ class _ProfileScreenState extends State<ProfileScreen> {
       print('Error loading profile: $e');
       setState(() => isLoading = false);
     }
+  }
+
+  Future<void> loadNotifications() async {
+    try {
+      final notifs = await NotificationService.getUserNotifications();
+      final unreadCount = await NotificationService.getUnreadCount();
+
+      setState(() {
+        notifications = notifs;
+        unreadNotificationsCount = unreadCount;
+      });
+    } catch (e) {
+      print('Error loading notifications: $e');
+    }
+  }
+
+  // Show notifications dialog
+  void _showNotificationsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Notifikasi',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (notifications.isNotEmpty)
+                        TextButton(
+                          onPressed: () async {
+                            await NotificationService.markAllAsRead();
+                            // Simply update the UI counters
+                            setState(() {
+                              unreadNotificationsCount = 0;
+                            });
+                            Navigator.pop(context);
+                            // Reload notifications to get the updated status
+                            loadNotifications();
+                          },
+                          child: const Text(
+                            'Tandai Semua Dibaca',
+                            style: TextStyle(color: AppColors.primary),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 0),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  ),
+                  child:
+                      notifications.isEmpty
+                          ? const Padding(
+                            padding: EdgeInsets.all(30.0),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.notifications_off,
+                                  size: 70,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Tidak ada notifikasi',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                          : ListView.separated(
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            itemCount: notifications.length,
+                            separatorBuilder:
+                                (context, index) => const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final notification = notifications[index];
+
+                              // Choose icon based on notification type
+                              IconData icon;
+                              Color iconColor;
+
+                              switch (notification.type) {
+                                case 'payment':
+                                  icon = Icons.payment;
+                                  iconColor = Colors.green;
+                                  break;
+                                case 'cancellation':
+                                  icon = Icons.cancel;
+                                  iconColor = Colors.red;
+                                  break;
+                                default:
+                                  icon = Icons.notifications;
+                                  iconColor = AppColors.primary;
+                              }
+                              return InkWell(
+                                onTap: () async {
+                                  // Mark as read when tapped
+                                  if (!notification.isRead) {
+                                    await NotificationService.markAsRead(
+                                      notification.id,
+                                    );
+                                    loadNotifications();
+                                    // Update badge count in UI
+                                    setState(() {
+                                      if (unreadNotificationsCount > 0) {
+                                        unreadNotificationsCount--;
+                                      }
+                                    });
+                                  }
+
+                                  // Navigate to relevant screen based on notification type
+                                  if (notification.bookingId != null) {
+                                    Navigator.of(context).pop(); // Close dialog
+                                    // Navigate to Orders tab with the booking ID
+                                    Navigator.of(
+                                      context,
+                                    ).pushNamedAndRemoveUntil(
+                                      '/main',
+                                      (route) => false,
+                                      arguments: {
+                                        'initialTab': 1,
+                                        'bookingId': notification.bookingId,
+                                      },
+                                    );
+                                  }
+                                },
+                                child: Container(
+                                  color:
+                                      notification.isRead
+                                          ? null
+                                          : AppColors.primary.withOpacity(0.05),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 16,
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: iconColor.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          icon,
+                                          color: iconColor,
+                                          size: 24,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              notification.title,
+                                              style: TextStyle(
+                                                fontWeight:
+                                                    notification.isRead
+                                                        ? FontWeight.normal
+                                                        : FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              notification.message,
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              notification.getRelativeTime(),
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                ),
+                const Divider(height: 0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'Tutup',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+    );
   }
 
   @override
@@ -152,8 +402,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         context: context,
                         icon: Icons.notifications,
                         label: 'Notifikasi',
+                        badge:
+                            unreadNotificationsCount > 0
+                                ? (unreadNotificationsCount > 9
+                                    ? '9+'
+                                    : unreadNotificationsCount.toString())
+                                : null,
                         onTap: () {
-                          // TODO: Implement notifications
+                          _showNotificationsDialog(context);
                         },
                       ),
                       _buildMenuItem(
@@ -210,7 +466,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const LoginScreen(),
+                                    builder:
+                                        (context) => const LoginScreenNew(),
                                   ),
                                   (route) => false,
                                 );
@@ -265,11 +522,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    String? badge,
   }) {
     return ListTile(
       leading: Icon(icon, color: AppColors.primary),
       title: Text(label),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (badge != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+              child: Center(
+                child: Text(
+                  badge,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          const SizedBox(width: 8),
+          const Icon(Icons.chevron_right),
+        ],
+      ),
       onTap: onTap,
     );
   }

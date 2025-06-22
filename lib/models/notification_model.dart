@@ -66,4 +66,27 @@ class NotificationModel {
       return 'Baru saja';
     }
   }
+
+  // Create a copy of this notification with updated fields
+  NotificationModel copyWith({
+    String? id,
+    String? userId,
+    String? title,
+    String? message,
+    String? type,
+    DateTime? timestamp,
+    bool? isRead,
+    String? bookingId,
+  }) {
+    return NotificationModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      message: message ?? this.message,
+      type: type ?? this.type,
+      timestamp: timestamp ?? this.timestamp,
+      isRead: isRead ?? this.isRead,
+      bookingId: bookingId ?? this.bookingId,
+    );
+  }
 }
