@@ -804,7 +804,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _buildSectionHeader('Tips Olahraga'),
         const SizedBox(height: 16),
         SizedBox(
-          height: 220,
+          height: 250,
           child:
               sportTips.isEmpty
                   ? const Center(
@@ -1095,9 +1095,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 24),
-
-                      // Promo Banner
+                      const SizedBox(height: 24), // Promo Banner
                       SizedBox(
                         height: 150,
                         child: CarouselSlider.builder(
@@ -1138,7 +1136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       _buildUpcomingBookingsSection(),
                       const SizedBox(height: 24),
 
-                      // Promos section
+                      // Promos section (detailed)
                       _buildPromosSection(),
                       const SizedBox(height: 24),
 
@@ -1188,30 +1186,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       // Events section
                       _buildEventsSection(),
-                      const SizedBox(height: 24),
-
-                      // Map section
-                      _buildNearbyMapSection(),
-                      const SizedBox(height: 24),
-                      const SizedBox(height: 24),
-
-                      // Promo Section
-                      _buildPromosSection(),
-                      const SizedBox(height: 24),
-
-                      // Upcoming Bookings Section
-                      _buildUpcomingBookingsSection(),
-                      const SizedBox(height: 24),
-
-                      // Tips Olahraga Section
-                      _buildSportTipsSection(),
-                      const SizedBox(height: 24),
-
-                      // Events Section
-                      _buildEventsSection(),
-                      const SizedBox(height: 24),
-
-                      // Nearby Map Section
+                      const SizedBox(height: 24), // Map section
                       _buildNearbyMapSection(),
                       const SizedBox(height: 40),
                     ],

@@ -15,7 +15,7 @@ class SportTipCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 250,
-        margin: const EdgeInsets.only(right: 16),
+        margin: const EdgeInsets.only(right: 16, bottom: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: Colors.white,
@@ -37,12 +37,12 @@ class SportTipCard extends StatelessWidget {
               ),
               child: Image.network(
                 sportTip.imageUrl,
-                height: 120,
+                height: 110,
                 width: double.infinity,
                 fit: BoxFit.cover,
                 errorBuilder:
                     (context, _, __) => Container(
-                      height: 120,
+                      height: 110,
                       width: double.infinity,
                       color: Colors.grey.shade300,
                       alignment: Alignment.center,
@@ -55,7 +55,7 @@ class SportTipCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -78,23 +78,23 @@ class SportTipCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   // Tip Title
                   Text(
                     sportTip.title,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                      fontSize: 13,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   // Tip Content
                   Text(
                     sportTip.content,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    maxLines: 2,
+                    style: const TextStyle(color: Colors.grey, fontSize: 11),
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
