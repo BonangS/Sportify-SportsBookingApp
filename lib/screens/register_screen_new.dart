@@ -109,7 +109,7 @@ class _RegisterScreenNewState extends State<RegisterScreenNew> {
                 onPressed: () => Navigator.pop(context),
               ),
             ),
-            
+
             // Main Content
             Center(
               child: SingleChildScrollView(
@@ -154,7 +154,7 @@ class _RegisterScreenNewState extends State<RegisterScreenNew> {
                             );
                           },
                         ),
-                        
+
                         // Header Text
                         const Text(
                           'Buat Akun Baru',
@@ -171,7 +171,7 @@ class _RegisterScreenNewState extends State<RegisterScreenNew> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 32),
-                        
+
                         // Name Field
                         TextFormField(
                           controller: _nameController,
@@ -189,10 +189,11 @@ class _RegisterScreenNewState extends State<RegisterScreenNew> {
                               horizontal: 20,
                             ),
                           ),
-                          validator: (value) => _validateNotEmpty(value, 'Nama'),
+                          validator:
+                              (value) => _validateNotEmpty(value, 'Nama'),
                         ),
                         const SizedBox(height: 16),
-                        
+
                         // Email Field
                         TextFormField(
                           controller: _emailController,
@@ -214,7 +215,7 @@ class _RegisterScreenNewState extends State<RegisterScreenNew> {
                           validator: _validateEmail,
                         ),
                         const SizedBox(height: 16),
-                        
+
                         // Phone Field
                         TextFormField(
                           controller: _phoneController,
@@ -233,10 +234,12 @@ class _RegisterScreenNewState extends State<RegisterScreenNew> {
                             ),
                           ),
                           keyboardType: TextInputType.phone,
-                          validator: (value) => _validateNotEmpty(value, 'Nomor telepon'),
+                          validator:
+                              (value) =>
+                                  _validateNotEmpty(value, 'Nomor telepon'),
                         ),
                         const SizedBox(height: 16),
-                        
+
                         // Password Field
                         TextFormField(
                           controller: _passwordController,
@@ -258,7 +261,7 @@ class _RegisterScreenNewState extends State<RegisterScreenNew> {
                           validator: _validatePassword,
                         ),
                         const SizedBox(height: 32),
-                        
+
                         // Register Button
                         ElevatedButton(
                           onPressed: _isLoading ? null : _register,
@@ -272,26 +275,27 @@ class _RegisterScreenNewState extends State<RegisterScreenNew> {
                             ),
                             minimumSize: const Size(double.infinity, 54),
                           ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
+                          child:
+                              _isLoading
+                                  ? const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : const Text(
+                                    'DAFTAR',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
                                   ),
-                                )
-                              : const Text(
-                                  'DAFTAR',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.2,
-                                  ),
-                                ),
                         ),
                         const SizedBox(height: 20),
-                        
+
                         // Back to Login Link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
