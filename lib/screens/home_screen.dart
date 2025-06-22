@@ -674,8 +674,10 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Promo Spesial'),
-        const SizedBox(height: 16),        SizedBox(
-          height: 260, // Menambah tinggi dari 210 ke 260 untuk menampung konten card
+        const SizedBox(height: 16),
+        SizedBox(
+          height:
+              260, // Menambah tinggi dari 210 ke 260 untuk menampung konten card
           child:
               promos.isEmpty
                   ? const Center(
@@ -883,13 +885,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ],
     );
-  }  @override
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Menggunakan image_url dari data venues yang sudah diambil dari database
-    final List<String> promoImages = venues
-        .where((venue) => venue.imageUrl != null && venue.imageUrl!.isNotEmpty)
-        .map((venue) => venue.imageUrl!)
-        .toList();
+    final List<String> promoImages =
+        venues
+            .where(
+              (venue) => venue.imageUrl != null && venue.imageUrl!.isNotEmpty,
+            )
+            .map((venue) => venue.imageUrl!)
+            .toList();
 
     return Scaffold(
       body: SafeArea(
@@ -1091,82 +1098,118 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           },
                         ),
-                      ),                      const SizedBox(height: 24), // Promo Banner
+                      ),
+                      const SizedBox(height: 24),
+
+                      // ===== URUTAN WIDGET DIPERBAIKI DI SINI =====
+
+                      // Sports tips section
+                      _buildSportTipsSection(),
+                      const SizedBox(height: 24),
+
+                      // Events section
+                      _buildEventsSection(),
+                      const SizedBox(height: 24),
+
+                      // Promo Banner
                       promoImages.isEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Container(
-                            height: 150,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(12),
+                          ? Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
                             ),
-                            alignment: Alignment.center,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.image, size: 48, color: Colors.grey.shade400),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Tidak ada venue tersedia', 
-                                  style: TextStyle(color: Colors.grey.shade600),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : SizedBox(
-                        height: 150,
-                        child: CarouselSlider.builder(
-                          unlimitedMode: promoImages.length > 1,
-                          autoSliderTransitionTime: const Duration(
-                            milliseconds: 500,
-                          ),
-                          enableAutoSlider: promoImages.length > 1,
-                          slideBuilder: (index) {                            return Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
+                            child: Container(
+                              height: 150,
                               decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
                                 borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
+                              ),
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.image,
+                                    size: 48,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Tidak ada venue tersedia',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                    ),
                                   ),
                                 ],
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.network(
-                                  promoImages[index],
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: Colors.grey.shade200,
-                                      alignment: Alignment.center,
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
-                                          SizedBox(height: 8),
-                                          Text('Gambar tidak tersedia', style: TextStyle(color: Colors.grey)),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
+                            ),
+                          )
+                          : SizedBox(
+                            height: 150,
+                            child: CarouselSlider.builder(
+                              unlimitedMode: promoImages.length > 1,
+                              autoSliderTransitionTime: const Duration(
+                                milliseconds: 500,
                               ),
-                            );
-                          },
-                          slideTransform: const CubeTransform(),
-                          itemCount: promoImages.length,
-                        ),
-                      ),
+                              enableAutoSlider: promoImages.length > 1,
+                              slideBuilder: (index) {
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        spreadRadius: 1,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.network(
+                                      promoImages[index],
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Container(
+                                          color: Colors.grey.shade200,
+                                          alignment: Alignment.center,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.image_not_supported,
+                                                size: 40,
+                                                color: Colors.grey,
+                                              ),
+                                              SizedBox(height: 8),
+                                              Text(
+                                                'Gambar tidak tersedia',
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                              slideTransform: const CubeTransform(),
+                              itemCount: promoImages.length,
+                            ),
+                          ),
                       const SizedBox(height: 24),
 
                       // Upcoming bookings section
@@ -1217,13 +1260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Sports tips section
-                      _buildSportTipsSection(),
-                      const SizedBox(height: 24),
-
-                      // Events section
-                      _buildEventsSection(),
-                      const SizedBox(height: 24), // Map section
+                      // Map section
                       _buildNearbyMapSection(),
                       const SizedBox(height: 40),
                     ],
