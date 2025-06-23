@@ -202,6 +202,19 @@ class _DetailScreenState extends State<DetailScreen> {
 
             // Check if the start time of this slot is in the booked list
             final isBooked = bookedTimeSlots.contains(startTime);
+            
+            // Check if this slot is in the past (for today only)
+            bool isPastTime = false;
+            if (selectedDate.year == DateTime.now().year && 
+                selectedDate.month == DateTime.now().month && 
+                selectedDate.day == DateTime.now().day) {
+              // Parse time slot start hour
+              final int slotHour = int.parse(startTime.split(':')[0]);
+              // If slot hour is earlier than current hour, mark as past
+              if (slotHour <= DateTime.now().hour) {
+                isPastTime = true;
+              }
+            }
 
             // Visual state of the tile
             Color bgColor = Colors.white;
@@ -210,8 +223,8 @@ class _DetailScreenState extends State<DetailScreen> {
             List<BoxShadow>? boxShadow;
             double opacity = 1.0;
 
-            // Determine visual state based on selection and booking status
-            if (isBooked) {
+            // Determine visual state based on selection, booking status, and past time
+            if (isBooked || isPastTime) {
               bgColor = Colors.grey.shade200;
               borderColor = Colors.grey.shade400;
               textColor = Colors.grey;
@@ -232,8 +245,8 @@ class _DetailScreenState extends State<DetailScreen> {
 
             return GestureDetector(
               onTap:
-                  isBooked
-                      ? null // Disable tap for booked slots
+                  isBooked || isPastTime
+                      ? null // Disable tap for booked slots and past time slots
                       : () {
                         setState(() {
                           if (isSelected) {
@@ -298,6 +311,12 @@ class _DetailScreenState extends State<DetailScreen> {
                           top: 5,
                           right: 5,
                           child: Icon(Icons.block, color: Colors.red, size: 14),
+                        ),
+                      if (isPastTime && !isBooked)
+                        Positioned(
+                          top: 5,
+                          right: 5,
+                          child: Icon(Icons.access_time, color: Colors.grey, size: 14),
                         ),
                     ],
                   ),
